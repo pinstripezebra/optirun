@@ -1,0 +1,12 @@
+{
+    "margin-left": "1rem",
+    "margin-right": "1rem",
+    "padding": "1rem 1rem",
+    "display":"inline-block",
+    "width": "80%",
+    "background-image": "url(/assets/background1.png)",              
+    "background-size": "cover", 
+    "background-repeat": "no-repeat",
+    "height": "100vh"
+
+}

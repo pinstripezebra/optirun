@@ -1,0 +1,7 @@
+SELECT [username]
+      ,[password]
+      ,[latitude]
+      ,[longitude]
+      ,[admin_status]
+  FROM [optirun].[dbo].[users]
+  WHERE username = {username}
