@@ -5,10 +5,9 @@ from openmeteopy.options import ForecastOptions
 from itertools import product
 import pandas as pd
 import os
-import pymysql 
-import pyodbc
 from dotenv import find_dotenv, load_dotenv
 from geopy.geocoders import Nominatim
+import psycopg2
 
 
 
@@ -115,10 +114,7 @@ def retrieve_users():
     db= os.getenv("DB_NAME")
 
     # defining connection string
-    conn = pyodbc.connect('Driver={SQL Server};\
-                         Server=' + server + ';\
-                         Database=' + db + ';\
-                         Trusted_Connection=yes')
+    conn = psycopg2.connect(os.environ.get("POST_DB_LINK"), sslmode='require')
 
     #connection = conn.cursor() 
     df = pd.read_sql(query, conn) 
@@ -167,10 +163,7 @@ def insert_user(name: str, password: str, latitude: str, longitude: str):
     db= os.getenv("DB_NAME")
 
     # defining connection string
-    conn = pyodbc.connect('Driver={SQL Server};\
-                            Server=' + server + ';\
-                            Database=' + db + ';\
-                            Trusted_Connection=yes')
+    conn = psycopg2.connect(os.environ.get("POST_DB_LINK"), sslmode='require')
         
     # defining cursor and executing insertion
     cursor = conn.cursor()
@@ -205,10 +198,7 @@ def retrieve_user_from_db(username):
     db= os.getenv("DB_NAME")
 
     # defining connection string
-    conn = pyodbc.connect('Driver={SQL Server};\
-                         Server=' + server + ';\
-                         Database=' + db + ';\
-                         Trusted_Connection=yes')
+    conn = psycopg2.connect(os.environ.get("POST_DB_LINK"), sslmode='require')
 
     #connection = conn.cursor() 
     df = pd.read_sql(query, conn) 

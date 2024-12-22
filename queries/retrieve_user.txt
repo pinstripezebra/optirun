@@ -1,7 +1,7 @@
-SELECT [username]
-      ,[password]
-      ,[latitude]
-      ,[longitude]
-      ,[admin_status]
-  FROM [optirun].[dbo].[users]
+SELECT username
+      ,password
+      ,latitude
+      ,longitude
+      ,admin_status
+  FROM users
   WHERE username = {username}
