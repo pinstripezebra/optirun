@@ -11,7 +11,7 @@ dash.register_page(__name__, path='/login')
 
 # Loading json files containing registration pages style
 LOGIN_STYLE = {}
-with open('style\\login_style.json') as f:
+with open('style/login_style.json') as f:
     LOGIN_STYLE = json.load(f)
 
 

@@ -31,7 +31,7 @@ optimal_conditions = {'temperature_2m': float(os.getenv("OPTIMAL_TEMP")),
 
 
 # Note will need to pass these in from app
-df1 = pd.read_csv("Data\\weather_data.csv")
+df1 = pd.read_csv("Data/.csv")
 df1['time'] = pd.to_datetime(df1['time'])
 
 # calculating nightime windows

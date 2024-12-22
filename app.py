@@ -22,11 +22,11 @@ repull_data = False
 
 # Loading json files containing component styles
 SIDEBAR_STYLE , CONTENT_STYLE, LOGIN_STYLE = {}, {}, {}
-with open('style\\sidebar_style.json') as f:
+with open('style/sidebar_style.json') as f:
     SIDEBAR_STYLE = json.load(f)
-with open('style\\content_style.json') as f:
+with open('style/content_style.json') as f:
     CONTENT_STYLE = json.load(f)
-with open('style\\login_style.json') as f:
+with open('style/login_style.json') as f:
     LOGIN_STYLE = json.load(f)
 
 

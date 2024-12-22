@@ -9,7 +9,7 @@ dash.register_page(__name__, path='/map')
 
 
 # Note will need to pass these in from app
-df1 = pd.read_csv("Data\\test_multi.csv")
+df1 = pd.read_csv("Data/test_multi.csv")
 df1['time'] = pd.to_datetime(df1['time'])
 
 # defining variables that can be filtered for

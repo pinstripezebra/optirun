@@ -12,7 +12,7 @@ dash.register_page(__name__, path='/register')
 
 # Loading json files containing registration pages style
 REGISTER_STYLE = {}
-with open('style\\register_style.json') as f:
+with open('style/register_style.json') as f:
     REGISTER_STYLE = json.load(f)
 
 # Defining page layout
