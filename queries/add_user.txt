@@ -1,2 +1,2 @@
-INSERT INTO dbo.users (username, password, latitude, longitude,admin_status)
+INSERT INTO users (username, password, latitude, longitude,admin_status)
 VALUES ({name1}, {password1}, {latitude1}, {longitude1}, {admin_status1});
