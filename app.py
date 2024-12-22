@@ -19,8 +19,6 @@ dotenv_path = find_dotenv()
 load_dotenv(dotenv_path)
 repull_data = False
 
-# authentication
-users = retrieve_users()
 
 # Loading json files containing component styles
 SIDEBAR_STYLE , CONTENT_STYLE, LOGIN_STYLE = {}, {}, {}
