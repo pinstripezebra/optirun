@@ -14,7 +14,7 @@ from utility.chatbot import query_condition_description
 dash.register_page(__name__, path='/analytic')
 
 # Note will need to pass these in from app
-df1 = pd.read_csv("Data\\weather_data.csv")
+df1 = pd.read_csv("Data/weather_data.csv")
 df1['time'] = pd.to_datetime(df1['time'])
 
 # loading environmental variables
