@@ -81,17 +81,17 @@ def data_pipeline(repull_data, latitude, longitude):
 
     df = ""
     parent_path = str(os.path.dirname(os.path.dirname(__file__)))
-    total_path = parent_path + '//Data//' 
+    total_path = parent_path + '/Data/' 
     file_name = 'weather_data.csv'
 
     # repull data and save it
     if repull_data:
         df = return_single_point(latitude, longitude, forecast_days = 3)
-        df.to_csv("Data\\weather_data.csv")
+        df.to_csv("Data/weather_data.csv")
 
     # if we want to load old data
     else:
-        df = pd.read_csv('Data\\weather_data.csv')
+        df = pd.read_csv('Data/weather_data.csv')
     return df
 
 def read_file_into_string(filename):
@@ -106,7 +106,7 @@ def retrieve_users():
     # retrieving query
     dotenv_path = find_dotenv()
     load_dotenv(dotenv_path)
-    filename = 'queries\\retrieve_users.txt'
+    filename = 'queries/retrieve_users.txt'
     query = read_file_into_string(filename)
 
     # retrieiving server + database information
@@ -148,7 +148,7 @@ def insert_user(name: str, password: str, latitude: str, longitude: str):
     # retrieving query
     dotenv_path = find_dotenv()
     load_dotenv(dotenv_path)
-    filename = 'queries\\add_user.txt'
+    filename = 'queries/add_user.txt'
 
     # Passing input parameters
     insertion = read_file_into_string(filename)
@@ -190,7 +190,7 @@ def retrieve_user_from_db(username):
     # retrieving query
     dotenv_path = find_dotenv()
     load_dotenv(dotenv_path)
-    filename = 'queries\\retrieve_user.txt'
+    filename = 'queries/retrieve_user.txt'
     query = read_file_into_string(filename).format(username = "'" + username + "'")
 
     # retrieiving server + database information
