@@ -136,7 +136,19 @@ sidebar = html.Div(children = [
                     )
                 ],
                 style = {'color':'black'}
-            )
+            ),
+            html.Br(),
+            dbc.Label("Imperial/Metric"),
+            dbc.Checklist(
+                options=[
+                    {"label": "Option 1", "value": 1},
+                ],
+                value=[1],
+                id="measurement-switch",
+                switch=True,
+            ),
+        
+    
 
         ], style=SIDEBAR_STYLE
     )
