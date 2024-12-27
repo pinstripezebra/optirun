@@ -111,7 +111,7 @@ sidebar = html.Div(children = [
             html.Hr(),
             html.Div([   
                 dbc.Nav([
-                    dbc.NavLink(f"{page['name']}", href = page["relative_path"]) for page in dash.page_registry.values() if page["relative_path"] != '/register' and page["relative_path"] != '/login'
+                    dbc.NavLink(f"{page['name']}", href = page["relative_path"]) for page in dash.page_registry.values() if page["relative_path"] != '/register' and page["relative_path"] != '/login' and page["relative_path"] != '/logout'
                 ], vertical=True)
 
             ]),
@@ -219,7 +219,7 @@ def display_page(pathname):
         view = register
 
     else:
-        view = error404
+        view = login
     return view, url
 
 # callback to display username on sidebar
