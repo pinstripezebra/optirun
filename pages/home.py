@@ -45,13 +45,12 @@ forecasted_conditions = {'temperature_2m': df1['temperature_2m'].to_list(),
 # Rating weather conditions
 max_window = len(df1['temperature_2m'].to_list())
 conditions = find_optimal_window(optimal_conditions, forecasted_conditions, max_window)
-
 # Adding forecast to dataframe
 df1['Forecast_Score'] = conditions['Score']
 
 latitude = 45.5152
 longitude = -122.6784
-df1 = df1[(df1['latitude'] == latitude) & (df1['longitude'] == longitude)]
+#df1 = df1[(df1['latitude'] == latitude) & (df1['longitude'] == longitude)]
 
 # Defining layout
 layout = html.Div([

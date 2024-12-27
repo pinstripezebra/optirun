@@ -87,6 +87,16 @@ def data_pipeline(repull_data, latitude, longitude):
     # repull data and save it
     if repull_data:
         df = return_single_point(latitude, longitude, forecast_days = 3)
+
+        # converting to imperial
+        df['temperature_2m'] = df['temperature_2m'] * 1.8 + 32
+        df['windspeed_10m'] = df['windspeed_10m'] * 0.621371
+
+        # rounding columns
+        df.temperature_2m = df.temperature_2m.round(2)
+        df.windspeed_10m = df.windspeed_10m.round(2)
+
+        # writing output
         df.to_csv("Data/weather_data.csv")
 
     # if we want to load old data

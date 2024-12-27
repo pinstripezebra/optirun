@@ -141,7 +141,7 @@ sidebar = html.Div(children = [
             dbc.Label("Imperial/Metric"),
             dbc.Checklist(
                 options=[
-                    {"label": "Option 1", "value": 1},
+                    {"label": "Option 1", "value": "Metric"},
                 ],
                 value=[1],
                 id="measurement-switch",
@@ -152,7 +152,8 @@ sidebar = html.Div(children = [
 
         ], style=SIDEBAR_STYLE
     )
-home_page = html.Div([sidebar,
+home_page = html.Div([html.Div(id = 'dummy_div'),
+        sidebar,
         html.Div([
                 dash.page_container
         ], style=CONTENT_STYLE)
@@ -189,7 +190,7 @@ def login_button_click(n_clicks, username, password):
 # Main router
 @callback(Output('page-content', 'children'), 
           Output('redirect', 'pathname'),
-              Input('url', 'pathname'))
+          Input('url', 'pathname'))
 def display_page(pathname):
     ''' callback to determine layout to return '''
     # We need to determine two things for everytime the user navigates:
@@ -244,6 +245,22 @@ def login_status(url):
     else:
         return html.Div([""])
 
+
+# callback to update dataframe to metric/standard
+@callback(Output('dummy_div', 'children', allow_duplicate = True), 
+          Input('measurement-switch', 'value'),
+          prevent_initial_call = True)
+def convert_metric_imperial(value):
+     
+    # if metric is selected convert to metric
+    if len(value) > 0:
+        print("converted to metric")
+        df1 = pd.read_csv("Data/weather_data.csv")
+        df1['temperature_2m'] = (df1['temperature_2m'] - 32) *(5/9)
+        df1.temperature_2m = df1.temperature_2m.round(2)
+        df1['windspeed_10m'] = df1['windspeed_10m'] * 1.60934
+        df1.windspeed_10m = df1.windspeed_10m.round(2)
+        df1.to_csv("Data/weather_data.csv")
 
 # Running the app
 if __name__ == '__main__':
