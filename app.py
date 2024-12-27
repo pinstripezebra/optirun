@@ -219,7 +219,7 @@ def display_page(pathname):
         view = register
 
     else:
-        view = login
+        view = error404
     return view, url
 
 # callback to display username on sidebar
