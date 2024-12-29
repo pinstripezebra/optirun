@@ -89,12 +89,12 @@ def data_pipeline(repull_data, latitude, longitude):
         df = return_single_point(latitude, longitude, forecast_days = 3)
 
         # converting to imperial
-        df['temperature_2m'] = df['temperature_2m'] * 1.8 + 32
-        df['windspeed_10m'] = df['windspeed_10m'] * 0.621371
+        df['temperature_F'] = df['temperature_2m'] * 1.8 + 32
+        df['windspeed_MPH'] = df['windspeed_10m'] * 0.621371
 
         # rounding columns
-        df.temperature_2m = df.temperature_2m.round(2)
-        df.windspeed_10m = df.windspeed_10m.round(2)
+        df.temperature_F = df.temperature_F.round(2)
+        df.windspeed_MPH = df.windspeed_MPH.round(2)
 
         # writing output
         df.to_csv("Data/weather_data.csv")

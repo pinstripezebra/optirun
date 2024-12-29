@@ -246,22 +246,6 @@ def login_status(url):
         return html.Div([""])
 
 
-# callback to update dataframe to metric/standard
-@callback(Output('dummy_div', 'children', allow_duplicate = True), 
-          Input('measurement-switch', 'value'),
-          prevent_initial_call = True)
-def convert_metric_imperial(value):
-     
-    # if metric is selected convert to metric
-    if len(value) > 0:
-        print("converted to metric")
-        df1 = pd.read_csv("Data/weather_data.csv")
-        df1['temperature_2m'] = (df1['temperature_2m'] - 32) *(5/9)
-        df1.temperature_2m = df1.temperature_2m.round(2)
-        df1['windspeed_10m'] = df1['windspeed_10m'] * 1.60934
-        df1.windspeed_10m = df1.windspeed_10m.round(2)
-        df1.to_csv("Data/weather_data.csv")
-
 # Running the app
 if __name__ == '__main__':
     app.run_server(debug=False, host = '0.0.0.0')
