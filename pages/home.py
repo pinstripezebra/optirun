@@ -200,6 +200,7 @@ def update_timeseries(button1, button2, button3, button4, button5, button6, swit
             forecast_type = 'temperature_F'
 
     # Creating graph figure
+    print(forecast_type)
     time_fig = generate_timeseries_plot(filtered_df, 'time', forecast_type, s1, s2)
   
     return draw_Image(time_fig)

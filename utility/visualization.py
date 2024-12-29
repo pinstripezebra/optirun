@@ -189,6 +189,25 @@ def generate_timeseries_plot(df, x:str, y:str, s1: list, s2: list):
         range=[min_time, max_time],  # Set the range of the x-axis
         side='bottom'  # Set the position of the x-axis to the bottom
         ))
+    
+    # creating y axis label
+    y = y.replace(" ", "")
+    y_axis_label = ""
+    if y == "windspeed_10m":
+        y_axis_label = "windspeed(KPH)"
+    elif y == "windspeed_MPH":
+        y_axis_label = "windspeed(MPH)"
+    elif y == "cloudcover":
+        y_axis_label = "cloudcover(%)"
+    elif y == "temperature_2m":
+        y_axis_label = "Temperature(C{temp})".format(temp = chr(176))
+    elif y == "temperature_F":
+        y_axis_label = "Temperature(F{temp})".format(temp = chr(176))
+
+
+    # Updating layout
+    time_fig.update_layout(yaxis_title=y_axis_label,
+                           title = y_axis_label + " Forecast")
     return time_fig
 
 
