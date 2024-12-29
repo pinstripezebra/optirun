@@ -15,9 +15,17 @@ import dash_daq as daq
 from suntime import Sun, SunTimeException
 from dotenv import find_dotenv, load_dotenv
 import os
+import json
 
 
 dash.register_page(__name__, path='/landing')
+
+# Loading json files containing component styles
+CONTENT_STYLE= {}
+
+with open('style/content_style.json') as f:
+    CONTENT_STYLE = json.load(f)
+
 
 # loading environmental variables
 dotenv_path = find_dotenv()
@@ -52,73 +60,104 @@ latitude = 45.5152
 longitude = -122.6784
 #df1 = df1[(df1['latitude'] == latitude) & (df1['longitude'] == longitude)]
 
+# defining header
+header = html.Div([
+        html.H3('Choosing the best time to be out and about.', style={'display': 'inline' }),
+        html.Div([
+            html.P('Imperial',style={'display': 'inline' }),
+            html.Div([
+                dbc.Checklist(
+                        options=[
+                            {"label": " ", "value": "Metric"},
+                        ],
+                        value=[1],
+                        id="measurement-switch",
+                        switch=True,
+                        inline = True,
+                        style={'display': 'inline' }
+                ),
+            ],style={'display': 'inline' ,
+                 'margin-left': '12px'}),
+            html.P('Metric',style={'display': 'inline' }),
+        ],style={'display': 'inline' ,
+                 'margin-left': '600px'}),
+    ], style = {"background-color": "#219aee",
+                "width": "80%",
+                "display": "flex",
+                "margin-left": "18rem",
+                'opacity': '80%',
+                "border": "#090b0b"})
+   
+
+
 # Defining layout
 layout = html.Div([
-    html.H1('Optirun: ', style={'display': 'inline' }),
-    html.H3('Choosing the best time to be out and about.', style={'display': 'inline' }),
-
-    # Adding selector for overall forecast
-    html.Div([
+    header,
         html.Div([
+        # Adding selector for overall forecast
+        html.Div([
+            html.Br(),
+            html.Div([
 
-            # Top row with filters + KPIs
-            dbc.Row([
-                dbc.Col([
-                    html.Div([
-                        dbc.Button('7-day-forecast', color = 'primary', id='forecast-click1',className="btn active", n_clicks=0),
-                        dbc.Button('1-day-forecast', color = 'primary', id='forecast-click2',className="me-1", n_clicks=0),
-                        ]),
-                    html.Div(children= [
-                    html.P('Choose the type of forecast', className = 'text'),
-                    html.Div([
-                        dbc.Button('Forecast_Score', color = 'primary', id='overall-click',className="btn active", n_clicks=0),
-                        dbc.Button('temp',  color = 'primary', id='temp-click',className="me-1", n_clicks=0),
-                        dbc.Button('wind',  color = 'primary', id='wind-click',className="me-1", n_clicks=0),
-                        dbc.Button('cloud',  color = 'primary', id='cloud-click',className="me-1", n_clicks=0)
-                    ])
-
-                    ])
-                ], style = {"display":"inline-block"}),
-
-                # kpi row
-                dbc.Col([
-                    html.Div([
-                        html.H3('Current Conditions'),
-                    ], style={'text-indent': '80px'}),
-                    # Div for kpis
-                    html.Div([], id='kpi-indicators')
-                    
-                ], style = {"display":"inline-block"})
-            ])
-
-        ])
-    ]),
-    # Adding filter for forecast period
-    html.Div([
+                # Top row with filters + KPIs
                 dbc.Row([
                     dbc.Col([
+                        html.Div([
+                            dbc.Button('7-day-forecast', color = 'primary', id='forecast-click1',className="btn active", n_clicks=0),
+                            dbc.Button('1-day-forecast', color = 'primary', id='forecast-click2',className="me-1", n_clicks=0),
+                            ]),
                         html.Div(children= [
-                            html.H3('Running Condition Forecast'),
+                        html.P('Choose the type of forecast', className = 'text'),
+                        html.Div([
+                            dbc.Button('Forecast_Score', color = 'primary', id='overall-click',className="btn active", n_clicks=0),
+                            dbc.Button('temp',  color = 'primary', id='temp-click',className="me-1", n_clicks=0),
+                            dbc.Button('wind',  color = 'primary', id='wind-click',className="me-1", n_clicks=0),
+                            dbc.Button('cloud',  color = 'primary', id='cloud-click',className="me-1", n_clicks=0)
+                        ])
+
+                        ])
+                    ], style = {"display":"inline-block"}),
+
+                    # kpi row
+                    dbc.Col([
+                        html.Div([
+                            html.H3('Current Conditions'),
+                        ], style={'text-indent': '80px'}),
+                        # Div for kpis
+                        html.Div([], id='kpi-indicators')
+                        
+                    ], style = {"display":"inline-block"})
+                ])
+
+            ])
+        ]),
+        # Adding filter for forecast period
+        html.Div([
+                    dbc.Row([
+                        dbc.Col([
+                            html.Div(children= [
+                                html.H3('Running Condition Forecast'),
+                            ]),
                         ]),
                     ]),
-                ]),
-    html.Div([
-                dbc.Row([ 
-                        # Div for forecast
-                        dbc.Col([
-                            html.Div([], id='test-forecast-out')
-                        ]),
-                        dbc.Col([
-                            html.Div(html.H3('Placeholder'))#[draw_Text(query_condition_description(api_key, 
-                                                            #                [df1['temperature_2m'][0],
-                                                             #                df1['windspeed_10m'][0],
-                                                              #               df1['cloudcover'][0]]))])
-                        ])
-                    ]) ,
+        html.Div([
+                    dbc.Row([ 
+                            # Div for forecast
+                            dbc.Col([
+                                html.Div([], id='test-forecast-out')
+                            ]),
+                            dbc.Col([
+                                html.Div(html.H3('Placeholder'))#[draw_Text(query_condition_description(api_key, 
+                                                                #                [df1['temperature_2m'][0],
+                                                                #                df1['windspeed_10m'][0],
+                                                                #               df1['cloudcover'][0]]))])
+                            ])
+                        ]) ,
 
-                    
-                ])
-        ]),
+                        
+                    ])
+            ]),
+        ], style=CONTENT_STYLE)
 ])
 
 

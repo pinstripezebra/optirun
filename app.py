@@ -17,7 +17,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, curren
 # loading environmental variables
 dotenv_path = find_dotenv()
 load_dotenv(dotenv_path)
-repull_data = False
+repull_data = True
 
 
 # Loading json files containing component styles
@@ -137,26 +137,13 @@ sidebar = html.Div(children = [
                 ],
                 style = {'color':'black'}
             ),
-            html.Br(),
-            dbc.Label("Imperial/Metric"),
-            dbc.Checklist(
-                options=[
-                    {"label": "Option 1", "value": "Metric"},
-                ],
-                value=[1],
-                id="measurement-switch",
-                switch=True,
-            ),
-        
-    
-
         ], style=SIDEBAR_STYLE
     )
-home_page = html.Div([html.Div(id = 'dummy_div'),
+home_page = html.Div([
         sidebar,
         html.Div([
                 dash.page_container
-        ], style=CONTENT_STYLE)
+        ])
     ])
 
 
