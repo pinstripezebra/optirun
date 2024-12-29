@@ -45,7 +45,6 @@ df1['time'] = pd.to_datetime(df1['time'])
 # calculating nightime windows
 timezone_offset = 8
 s1, s2 = return_nightimes(df1, timezone_offset)
-
 forecasted_conditions = {'temperature_2m': df1['temperature_2m'].to_list(),
                          'cloudcover': df1['cloudcover'].to_list(),
                          'windspeed_10m': df1['windspeed_10m'].to_list()}
@@ -170,24 +169,35 @@ layout = html.Div([
     Input('temp-click', 'n_clicks'),
     Input('wind-click', 'n_clicks'),
     Input('cloud-click', 'n_clicks'),
-    Input('overall-click', 'n_clicks')
+    Input('overall-click', 'n_clicks'),
+    Input("measurement-switch", 'value')
 
 )
-def update_timeseries(button1, button2, button3, button4, button5, button6):
+def update_timeseries(button1, button2, button3, button4, button5, button6, switch):
 
     filtered_df = df1
     # if we're filtering for only 1 day
     if "forecast-click2" == ctx.triggered_id:
-        filtered_df = df1[df1['time'].dt.date <  df1['time'].dt.date.min() + + datetime.timedelta(days=1)]
-   
+        filtered_df = df1[df1['time'].dt.date <  df1['time'].dt.date.min() + datetime.timedelta(days=1)]
+    print(switch)
     time_fig = ""
     forecast_type = "temperature_2m"
+
     if 'wind-click'== ctx.triggered_id:
-        forecast_type = 'windspeed_10m'
+        if 'Metric' in switch:
+            forecast_type = 'windspeed_10m'
+        else:
+            forecast_type = 'windspeed_MPH'
     elif 'cloud-click' == ctx.triggered_id:
         forecast_type = 'cloudcover'
     elif 'overall-click' == ctx.triggered_id:
         forecast_type = 'Forecast_Score'
+    # Temperature
+    else:
+        if 'Metric' in switch:
+            forecast_type = 'temperature_2m'
+        else:
+            forecast_type = 'temperature_F'
 
     # Creating graph figure
     time_fig = generate_timeseries_plot(filtered_df, 'time', forecast_type, s1, s2)
