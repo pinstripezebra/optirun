@@ -110,7 +110,7 @@ def return_nightimes(df, x):
 
 
 
-def get_current_conditions(df):
+def get_current_conditions(df, temp_col, wind_col):
 
     '''Takes input dataframe of ourly weather data, determines current time,
     and returns a dictionary of weather conditions closest to the current time'''
@@ -120,8 +120,8 @@ def get_current_conditions(df):
     filtered_df = df[df['time_delta'] == min(df['time_delta'])].reset_index()
 
     output = {
-        'temperature_2m': filtered_df['temperature_2m'][0],
-        'windspeed_10m': filtered_df['windspeed_10m'][0],
+        temp_col: filtered_df[temp_col][0],
+        wind_col: filtered_df[wind_col][0],
         'cloudcover': filtered_df['cloudcover'][0],
     }
     return output

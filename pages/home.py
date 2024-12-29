@@ -212,25 +212,39 @@ def update_timeseries(button1, button2, button3, button4, button5, button6, swit
     Output(component_id='kpi-indicators', component_property='children'),
     Input('forecast-click1', 'n_clicks'),
     Input('forecast-click2', 'n_clicks'),
+    Input("measurement-switch", 'value')
 )
 
-def update_kpi(val1, val2):
+def update_kpi(val1, val2, switch):
 
     filtered_df = df1
-    filtered_df = get_current_conditions(filtered_df)
-    temp = filtered_df['temperature_2m']
-    wind = filtered_df['windspeed_10m']
-    cloud= filtered_df['cloudcover']
+    temp, wind, cloud = "", "", ""
+    temp_trailer, wind_trailer = "", ""
+    if 'Metric' in switch:
+        filtered_df = get_current_conditions(filtered_df, 'temperature_2m', 'windspeed_10m')
+        temp = filtered_df['temperature_2m']
+        wind = filtered_df['windspeed_10m']
+        cloud= filtered_df['cloudcover']
+        temp_trailer = 'C'
+        wind_trailer = 'KPH'
+    else:
+        filtered_df = get_current_conditions(filtered_df, 'temperature_F','windspeed_MPH')
+        temp = filtered_df['temperature_F']
+        wind = filtered_df['windspeed_MPH']
+        cloud= filtered_df['cloudcover']
+        temp_trailer = 'F'
+        wind_trailer = 'MPH'
+
 
     ideal_temp = os.getenv("OPTIMAL_TEMP")
     ideal_wind = os.getenv("OPTIMAL_WIND")
     ideal_cloud = os.getenv("OPTIMAL_CLOUD")
     return dbc.Row([
                     dbc.Col([
-                        draw_Text_With_Background(temp, ideal_temp, chr(176) + "C", "./assets/temperature.png")
+                        draw_Text_With_Background(temp, ideal_temp, chr(176) + temp_trailer, "./assets/temperature.png")
                     ], width=3),
                     dbc.Col([
-                            draw_Text_With_Background(int(wind), ideal_wind,'KPH', "./assets/wind.png")
+                            draw_Text_With_Background(int(wind), ideal_wind,wind_trailer, "./assets/wind.png")
                     ], width=3),
                     dbc.Col([
                             draw_Text_With_Background(int(cloud),ideal_cloud, '%', "./assets/clouds.png")
