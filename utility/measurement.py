@@ -123,6 +123,7 @@ def get_current_conditions(df, temp_col, wind_col):
         temp_col: filtered_df[temp_col][0],
         wind_col: filtered_df[wind_col][0],
         'cloudcover': filtered_df['cloudcover'][0],
+        'precipitation_probability': filtered_df['precipitation_probability'][0]
     }
     return output
 

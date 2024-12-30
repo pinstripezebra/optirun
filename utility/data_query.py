@@ -24,6 +24,7 @@ def return_single_point(latitude, longitude, forecast_days = 3):
     hourly = hourly.temperature_2m()
     hourly = hourly.cloudcover()
     hourly = hourly.windspeed_10m()
+    hourly = hourly.precipitation_probability()
 
     # Selecting options
     options = ForecastOptions(latitude = latitude, 
@@ -31,7 +32,6 @@ def return_single_point(latitude, longitude, forecast_days = 3):
                                 forecast_days=forecast_days,
                                 timezone="America/Los_Angeles")
                                 
-
     # Pulling Data
     client = OpenMeteo(options, hourly)
 
@@ -87,7 +87,7 @@ def data_pipeline(repull_data, latitude, longitude):
     # repull data and save it
     if repull_data:
         df = return_single_point(latitude, longitude, forecast_days = 3)
-
+        
         # converting to imperial
         df['temperature_F'] = df['temperature_2m'] * 1.8 + 32
         df['windspeed_MPH'] = df['windspeed_10m'] * 0.621371
@@ -95,7 +95,7 @@ def data_pipeline(repull_data, latitude, longitude):
         # rounding columns
         df.temperature_F = df.temperature_F.round(2)
         df.windspeed_MPH = df.windspeed_MPH.round(2)
-
+        df.precipitation_probability = df.precipitation_probability.round(0)
         # writing output
         df.to_csv("Data/weather_data.csv")
 
