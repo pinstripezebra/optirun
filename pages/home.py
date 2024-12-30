@@ -91,45 +91,45 @@ header = html.Div([
 
 # Defining layout
 layout = html.Div([
-    header,
+        header,
         html.Div([
         # Adding selector for overall forecast
-        html.Div([
-            html.Br(),
             html.Div([
+                html.Br(),
+                html.Div([
 
-                # Top row with filters + KPIs
-                dbc.Row([
-                    dbc.Col([
-                        html.Div([
-                            dbc.Button('7-day-forecast', color = 'primary', id='forecast-click1',className="btn active", n_clicks=0),
-                            dbc.Button('1-day-forecast', color = 'primary', id='forecast-click2',className="me-1", n_clicks=0),
-                            ]),
-                        html.Div(children= [
-                        html.P('Choose the type of forecast', className = 'text'),
-                        html.Div([
-                            dbc.Button('Forecast_Score', color = 'primary', id='overall-click',className="btn active", n_clicks=0),
-                            dbc.Button('temp',  color = 'primary', id='temp-click',className="me-1", n_clicks=0),
-                            dbc.Button('wind',  color = 'primary', id='wind-click',className="me-1", n_clicks=0),
-                            dbc.Button('cloud',  color = 'primary', id='cloud-click',className="me-1", n_clicks=0)
-                        ])
+                    # Top row with filters + KPIs
+                    dbc.Row([
+                        dbc.Col([
+                            html.Div([
+                                dbc.Button('7-day-forecast', color = 'primary', id='forecast-click1',className="btn active", n_clicks=0),
+                                dbc.Button('1-day-forecast', color = 'primary', id='forecast-click2',className="me-1", n_clicks=0),
+                                ]),
+                            html.Div(children= [
+                            html.P('Choose the type of forecast', className = 'text'),
+                            html.Div([
+                                dbc.Button('Forecast_Score', color = 'primary', id='overall-click',className="btn active", n_clicks=0),
+                                dbc.Button('temp',  color = 'primary', id='temp-click',className="me-1", n_clicks=0),
+                                dbc.Button('wind',  color = 'primary', id='wind-click',className="me-1", n_clicks=0),
+                                dbc.Button('cloud',  color = 'primary', id='cloud-click',className="me-1", n_clicks=0)
+                            ])
 
-                        ])
-                    ], style = {"display":"inline-block"}),
+                            ])
+                        ], style = {"display":"inline-block"}),
 
-                    # kpi row
-                    dbc.Col([
-                        html.Div([
-                            html.H3('Current Conditions'),
-                        ], style={'text-indent': '80px'}),
-                        # Div for kpis
-                        html.Div([], id='kpi-indicators')
-                        
-                    ], style = {"display":"inline-block"})
+                        # kpi row
+                        dbc.Col([
+                            html.Div([
+                                html.H3('Current Conditions'),
+                            ], style={'text-indent': '80px'}),
+                            # Div for kpis
+                            html.Div([], id='kpi-indicators')
+                            
+                        ], style = {"display":"inline-block"})
+                    ])
+
                 ])
-
-            ])
-        ]),
+            ]),
         # Adding filter for forecast period
         html.Div([
                     dbc.Row([
@@ -243,23 +243,29 @@ def update_kpi(val1, val2, switch):
     ideal_cloud = os.getenv("OPTIMAL_CLOUD")
     ideal_prec = os.getenv("OPTIMAL_PREC")
 
-    return dbc.Row([
-                    dbc.Col([
-                        draw_Text_With_Background(int(temp), ideal_temp, chr(176) + temp_trailer, "./assets/temperature.png", 150)
-                    ], width=4),
-                    dbc.Col([
-                            draw_Text_With_Background(int(wind), ideal_wind,wind_trailer, "./assets/wind.png", 150)
-                    ], width=4),
-                    dbc.Col([
-                            draw_Text_With_Background(int(cloud),ideal_cloud, '%', "./assets/clouds.png", 150)
-                    ], width=4),
-                    dbc.Col([
-                            draw_Text_With_Background(int(prec),ideal_prec, '%', "./assets/rain.png", 150)
-                    ], width=4),
-                ], 
-                style = {'margin-left': '0px',
+    return dbc.Col([
+                    dbc.Row([
+                        dbc.Col([
+                            draw_Text_With_Background(int(temp), ideal_temp, chr(176) + temp_trailer, "./assets/temperature.png", 150)
+                        ], width=4),
+                        dbc.Col([
+                                draw_Text_With_Background(int(wind), ideal_wind,wind_trailer, "./assets/wind.png", 150)
+                        ], width=4)
+                    ], style = {'margin-left': '0px',
+                            "width": "80%",
+                            "padding": "0rem 0rem"}),
+                    dbc.Row([
+                        dbc.Col([
+                                draw_Text_With_Background(int(cloud),ideal_cloud, '%', "./assets/clouds.png", 150)
+                        ], width=4),
+                        dbc.Col([
+                                draw_Text_With_Background(int(prec),ideal_prec, '%', "./assets/rain.png", 150)
+                        ], width=4)
+                    ], style = {'margin-left': '0px',
                             "width": "80%",
                             "padding": "0rem 0rem"})
+                ], 
+)
 
 
 @callback(
