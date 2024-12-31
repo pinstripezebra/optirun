@@ -286,7 +286,7 @@ def update_kpi(hoverData):
     am_pm = convert_to_am_pm(hours)
 
     date = time_selected[5:10]
-    return 'Forecast{time}'.format(time = str(date) + ", " + am_pm)
+    return 'Forecast {time}'.format(time = str(date) + ", " + am_pm)
     
     
 
