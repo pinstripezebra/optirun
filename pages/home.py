@@ -86,7 +86,6 @@ header = html.Div([
                 "margin-left": "18rem",
                 'opacity': '80%',
                 "border": "#090b0b"})
-   
 
 
 # Defining layout
@@ -122,8 +121,6 @@ layout = html.Div([
                             html.Div([
                                 html.H3('Current Conditions'),
                             ], style={'text-indent': '80px'}),
-                            # Div for kpis
-                            html.Div([], id='kpi-indicators')
                             
                         ], style = {"display":"inline-block"})
                     ])
@@ -143,9 +140,16 @@ layout = html.Div([
                     dbc.Row([ 
                             # Div for forecast
                             dbc.Col([
-                                html.Div([], id='test-forecast-out')
+                                #html.Div([], id='test-forecast-out')
+
+                                dcc.Graph(
+                                    id='test-forecast-out',
+                                    hoverData={'points': [{'x': df1['time'].min()}]}
+                                )
                             ]),
                             dbc.Col([
+                                # Div for kpis
+                                html.Div([], id='kpi-indicators'),
                                 html.Div(html.H3('Placeholder'))#[draw_Text(query_condition_description(api_key, 
                                                                 #                [df1['temperature_2m'][0],
                                                                 #                df1['windspeed_10m'][0],
@@ -161,9 +165,10 @@ layout = html.Div([
 
 
 
+
 # callback for weekly forecast for individual series(temp, wind, etc)
 @callback(
-    Output(component_id='test-forecast-out', component_property='children'),
+    Output(component_id='test-forecast-out', component_property='figure'),
     Input('forecast-click1', 'n_clicks'),
     Input('forecast-click2', 'n_clicks'),
     Input('temp-click', 'n_clicks'),
@@ -179,7 +184,6 @@ def update_timeseries(button1, button2, button3, button4, button5, button6, swit
     # if we're filtering for only 1 day
     if "forecast-click2" == ctx.triggered_id:
         filtered_df = df1[df1['time'].dt.date <  df1['time'].dt.date.min() + datetime.timedelta(days=1)]
-    print(switch)
     time_fig = ""
     forecast_type = "temperature_2m"
 
@@ -203,7 +207,8 @@ def update_timeseries(button1, button2, button3, button4, button5, button6, swit
     print(forecast_type)
     time_fig = generate_timeseries_plot(filtered_df, 'time', forecast_type, s1, s2)
   
-    return draw_Image(time_fig)
+    #return draw_Image(time_fig)
+    return time_fig
     
     
 
@@ -212,23 +217,24 @@ def update_timeseries(button1, button2, button3, button4, button5, button6, swit
     Output(component_id='kpi-indicators', component_property='children'),
     Input('forecast-click1', 'n_clicks'),
     Input('forecast-click2', 'n_clicks'),
-    Input("measurement-switch", 'value')
+    Input("measurement-switch", 'value'),
+    Input('test-forecast-out', 'hoverData')
 )
 
-def update_kpi(val1, val2, switch):
+def update_kpi(val1, val2, switch, hoverData):
 
+    time_selected = hoverData['points'][0]['x']
     filtered_df = df1
-    print(filtered_df.columns)
     temp, wind, cloud, prec = "", "", "", ""
     temp_trailer, wind_trailer = "", ""
     if 'Metric' in switch:
-        filtered_df = get_current_conditions(filtered_df, 'temperature_2m', 'windspeed_10m')
+        filtered_df = get_current_conditions(filtered_df, 'temperature_2m', 'windspeed_10m', time_selected)
         temp = filtered_df['temperature_2m']
         wind = filtered_df['windspeed_10m']
         temp_trailer = 'C'
         wind_trailer = 'KPH'
     else:
-        filtered_df = get_current_conditions(filtered_df, 'temperature_F','windspeed_MPH')
+        filtered_df = get_current_conditions(filtered_df, 'temperature_F','windspeed_MPH', time_selected)
         temp = filtered_df['temperature_F']
         wind = filtered_df['windspeed_MPH']
         temp_trailer = 'F'
