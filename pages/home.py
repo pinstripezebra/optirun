@@ -9,7 +9,7 @@ import plotly.express as px
 import datetime
 import numpy as np
 from utility.visualization import generate_run_plot, draw_Image, draw_Text, generate_timeseries_plot, draw_Text_With_Background, draw_table
-from utility.measurement import find_optimal_window, return_nightimes, get_current_conditions
+from utility.measurement import find_optimal_window, return_nightimes, get_current_conditions, convert_to_am_pm
 from utility.chatbot import query_condition_description
 import dash_daq as daq
 from suntime import Sun, SunTimeException
@@ -116,13 +116,6 @@ layout = html.Div([
                             ])
                         ], style = {"display":"inline-block"}),
 
-                        # kpi row
-                        dbc.Col([
-                            html.Div([
-                                html.H3('Current Conditions'),
-                            ], style={'text-indent': '80px'}),
-                            
-                        ], style = {"display":"inline-block"})
                     ])
 
                 ])
@@ -131,6 +124,7 @@ layout = html.Div([
         html.Div([
                     dbc.Row([
                         dbc.Col([
+                            
                             html.Div(children= [
                                 html.H3('Running Condition Forecast'),
                             ]),
@@ -148,6 +142,9 @@ layout = html.Div([
                                 )
                             ]),
                             dbc.Col([
+                                html.Div([
+                                    html.H3(id = 'kpi-time'),
+                                ], style={'text-indent': '80px'}),
                                 # Div for kpis
                                 html.Div([], id='kpi-indicators'),
                                 html.Div(html.H3('Placeholder'))#[draw_Text(query_condition_description(api_key, 
@@ -273,6 +270,25 @@ def update_kpi(val1, val2, switch, hoverData):
                 ], 
 )
 
+
+# callback for kpi time
+@callback(
+    Output(component_id='kpi-time', component_property='children'),
+    Input('test-forecast-out', 'hoverData')
+)
+
+def update_kpi(hoverData):
+
+    time_selected = hoverData['points'][0]['x']
+    hours = time_selected[-5:][:2]
+
+    # converting 00 - 24 to am_pm format
+    am_pm = convert_to_am_pm(hours)
+
+    date = time_selected[5:10]
+    return 'Forecast{time}'.format(time = str(date) + ", " + am_pm)
+    
+    
 
 @callback(
     [Output("forecast-click1", "className"), 

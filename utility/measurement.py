@@ -123,4 +123,23 @@ def get_current_conditions(df: pd.DataFrame, temp_col: str, wind_col: str, time:
     }
     return output
 
+def convert_to_am_pm(hour: str):
+
+    """Converts 24-hour time to 12-hour AM/PM format."""
+
+    # removing leading 0 and converting to int
+    hour_converted = hour
+    if hour[0] == "0":
+        hour_converted = int(hour[1])
+    else:
+        hour_converted = int(hour)
+
+
+    if 0 < hour_converted <= 12:
+        return f"{hour_converted} AM"
+    elif hour == 0:
+        return "12 AM"
+    else:
+        return f"{hour_converted - 12} PM"
+
 
