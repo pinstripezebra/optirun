@@ -130,60 +130,14 @@ def register_user_to_database(n_clicks, username, email, password1, password2, a
 
             # Checking that passwords match
             else:
-                registration_error = validate_registration(username, password1, latitude, longitude)
+                registration_error = validate_registration(username, password1, latitude, longitude, temp, rain, cloud)
                 print(registration_error)
                 if registration_error == "no error":
                     insert_user(username, password1, str(latitude), str(longitude))
                     return html.Div([html.P(registration_error)]), html.Div([html.H3('Successfully Registered!')])
 
         
-    #if registration_error == 'no error':
-    #    registration_error = ""
+    if registration_error == 'no error':
+        registration_error = ""
     
     return html.Div([html.P(registration_error)]),  html.Div([])
-'''
-@callback(
-Output("Intake-Form", 'children'),
-Input("password-error-text", "text")
-)
-
-def intake_form_status(register_error):
-
-    # if we've registered successfuly
-    if register_error =="no error":
-        print("here")
-        return html.Div([
-            html.H3('Registered Successfully!')
-        ])
-
-    else:
-        return html.Div([
-                    html.Img(
-                        alt="Link to Github",
-                        src="./assets/logo.png",
-                        style={'height':'3%', 'width':'16%', 'margin': 'auto', "opacity": '0.8','display': 'inline'}
-                    ),
-                    html.H3('Optirun', style={'display': 'inline' }),
-                    html.H1('Account Creation'),
-                    html.H5('Username'),
-                    dcc.Input(placeholder='Enter your username',
-                                            type='text', id='register-uname-box'),
-                    html.H5('Email'),
-                    dcc.Input(placeholder='Enter your email',
-                                            type='text', id='register-email-box'),
-                    html.H5('Password'),
-                    dcc.Input(placeholder='Enter your password',
-                                type='password', id='register-pwd-box'),
-                    html.H5('Confirm Password'),
-                    dcc.Input(placeholder='Confirm your password',
-                                type='password', id='register-pwd-box2'),
-                    html.Div(id="password-error"),
-                    html.H5('Address'),
-                    dcc.Input(placeholder='Enter your Address',
-                                type='text', id='address-box'),
-                    html.Br(),
-                    html.Br(),
-                    dbc.Button('Register', n_clicks=0,className="me-2", id='Register-button'),
-
-                ],style = {'align-items':'center', 'justify-content':'center', })
-'''
