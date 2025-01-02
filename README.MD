@@ -18,3 +18,15 @@ Login using Flask and our PostgreSQL database to authenticate user, load prefere
 Registration allowing each user to specify their unique preferences for running conditions.
 
 ![alt text](assets/image-1.png)
+
+
+Forecasts weather conditions over the next week alloying user to evaluate both upcoming weather and the overall running score based on their preferences. KPI indicator offers green/orange/red classification based on difference between forecasted value and users preferred.
+
+![alt text](assets/home-page.png)
+
+
+### Deployment
+
+Both the front end dash application and back end PostgreSQL database are deployed on render.
+
+Live application: https://optirun-jb9t.onrender.com
