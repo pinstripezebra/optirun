@@ -13,8 +13,8 @@ Optirun uses open source weather forecast and user preferences to identify the o
 
 Login using Flask and our PostgreSQL database to authenticate user, load preferences, and generate forecasts for their location and preferences.
 
-![alt text](assets\image.png)
+![alt text](assets/image.png)
 
 Registration allowing each user to specify their unique preferences for running conditions.
 
-![alt text](assets\image-1.png)
+![alt text](assets/image-1.png)
