@@ -191,7 +191,14 @@ def display_page(pathname):
     url = dash.no_update
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
-    if pathname == '/login':
+    if pathname == '/' and current_user.is_authenticated:
+        view = home_page
+        url = '/landing'
+    elif pathname == '/':
+        view = login
+        url = '/login'
+
+    elif pathname == '/login':
         view = login
 
     elif pathname == '/logout':
