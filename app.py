@@ -12,6 +12,7 @@ from utility.data_query import data_pipeline, retrieve_users, retrieve_user_from
 import dash_auth
 import flask
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
+from utility.measurement import find_optimal_window
 
 
 # loading environmental variables
@@ -45,11 +46,12 @@ login_manager.login_view = '/login'
 
 # User data model
 class User(UserMixin):
-    def __init__(self, username, password, latitude, longitude):
+    def __init__(self, username, password, latitude, longitude, optimal_conditions):
         self.id = username
         self.password = password
         self.latitude = latitude
         self.longitude = longitude
+        self.optimal_conditions = optimal_conditions
 
 
 @ login_manager.user_loader
@@ -62,8 +64,11 @@ def load_user(username):
     user_df = retrieve_user_from_db(username)
     latitude, longitude = float(user_df['latitude'].to_list()[0]), float(user_df['longitude'].to_list()[0])
     password = user_df['password'].to_list()[0]
-
-    return User(username,password, latitude, longitude)
+    optimal_conditions = {'temperature_2m': float(user_df['temperature'].to_list()[0]),
+                                    'cloudcover': float(user_df['cloud'].to_list()[0]),
+                                    'windspeed_10m': float(user_df['rain'].to_list()[0])}
+    
+    return User(username,password, latitude, longitude, optimal_conditions)
 
 
 # login using login.py
@@ -88,7 +93,9 @@ error404 = html.Div([html.Div(html.H2('Error 404 - page not found')),
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     dcc.Location(id='redirect', refresh=True),
-    dcc.Store(id='login-status', storage_type='session'),
+    dcc.Store(id='login-status', storage_type='local'),
+    dcc.Store(id='stored-forecast', storage_type='local'),
+    dcc.Store(id='optimal-conditions', storage_type='local'),
     html.Div(id='page-content'),
 ])
 
@@ -149,7 +156,7 @@ home_page = html.Div([
 
 # Callback function to login the user, or update the screen if the username or password are incorrect
 @callback(
-    [Output('url_login', 'pathname'), Output('output-state', 'children')], 
+    [Output('url_login', 'pathname'), Output('output-state', 'children'), Output('stored-forecast', 'data'),Output('optimal-conditions', 'data')], 
     [Input('login-button', 'n_clicks')], [State('uname-box', 'value'), State('pwd-box', 'value')])
 def login_button_click(n_clicks, username, password):
     if n_clicks > 0:
@@ -161,16 +168,37 @@ def login_button_click(n_clicks, username, password):
             # Extracting latitude/longitude from db query
             latitude, longitude = float(user_df['latitude'].to_list()[0]), float(user_df['longitude'].to_list()[0])
 
-            # loging user in
-            user = User(username, password, latitude, longitude)
+            # Extracting optimal conditions from db query
+            optimal_conditions = {'temperature_2m': float(user_df['temperature'].to_list()[0]),
+                                  'cloudcover': float(user_df['cloud'].to_list()[0]),
+                                  'windspeed_10m': float(user_df['wind'].to_list()[0]),
+                                  'rain': float(user_df['rain'].to_list()[0])}
+
+
+            # logging user in
+            user = User(username, password, latitude, longitude, optimal_conditions)
             login_user(user)
 
-            # navigate to landing page if logged in successfully 
-            return '/landing', ''
-        else:
-            return '/login', 'Incorrect username or password'
+            # Logging forecast to store for consumption in other pages
+            df1 = data_pipeline(repull_data, current_user.latitude, current_user.longitude)
+            df1['time'] = df1.index
+            df1.reset_index(drop = True)
+            df1['time'] = pd.to_datetime(df1['time'])
+            forecasted_conditions = {'temperature_2m': df1['temperature_2m'].to_list(),
+                                     'cloudcover': df1['cloudcover'].to_list(),
+                                      'windspeed_10m': df1['windspeed_10m'].to_list()}
 
-    return dash.no_update, dash.no_update # Return a placeholder to indicate no update
+            # Rating weather conditions and adding overall score to dataframe
+            max_window = len(df1['temperature_2m'].to_list())
+            conditions = find_optimal_window(optimal_conditions, forecasted_conditions, max_window)
+            df1['Forecast_Score'] = conditions['Score'].to_list()
+
+            # navigate to landing page if logged in successfully 
+            return '/landing', '', df1.to_json(date_format='iso', orient='split'), optimal_conditions
+        else:
+            return '/login', 'Incorrect username or password', 'incorrect username'
+
+    return dash.no_update, dash.no_update, '', '' # Return a placeholder to indicate no update
 
 
 # Main router
@@ -211,9 +239,6 @@ def display_page(pathname):
     # if we're logged in and want to view one of the pages
     elif pathname == '/analytic' or pathname == '/landing' or pathname == '/map':
         if current_user.is_authenticated:
-
-            # pulling weather data
-            df1 = data_pipeline(repull_data, current_user.latitude, current_user.longitude)
             view = home_page
         else:
             view = 'Redirecting to login...'
@@ -221,7 +246,6 @@ def display_page(pathname):
     
     # if we're not logged in and want to register
     elif pathname == '/register':
-        print("now on register page")
         view = register
 
     else:
@@ -241,4 +265,7 @@ def login_status(url):
 
 # Running the app
 if __name__ == '__main__':
-    app.run_server(debug=False, host = '0.0.0.0')
+    app.run_server(debug=True)
+
+
+

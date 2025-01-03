@@ -140,7 +140,8 @@ def generate_timeseries_plot(df, x:str, y:str, s1: list, s2: list):
 
     time_fig = px.line(df, x = 'time', y = y,
                             title = '{type} Forecast'.format(type = y), 
-                           markers=True)
+                           markers=True,
+                            hover_data = x)
     i = 0
     # Finding min/max times from forecast series to align with day/night series
     min_time = df['time'].min().tz_localize('UTC')

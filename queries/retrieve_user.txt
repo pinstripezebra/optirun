@@ -3,5 +3,9 @@ SELECT username
       ,latitude
       ,longitude
       ,admin_status
+      ,temperature
+      ,rain
+      ,cloud
+      ,wind
   FROM users
   WHERE username = {username}

@@ -17,6 +17,9 @@ from dotenv import find_dotenv, load_dotenv
 import os
 import json
 
+print('STORE DATA')
+print(dcc.Store(id='stored-username')['data'])
+
 dash.register_page(__name__, path='/landing')
 
 # Loading json files containing component styles
@@ -25,10 +28,37 @@ CONTENT_STYLE= {}
 with open('style/content_style.json') as f:
     CONTENT_STYLE = json.load(f)
 
+
 # loading environmental variables
 dotenv_path = find_dotenv()
 load_dotenv(dotenv_path)
+LATITUDE = float(os.getenv("LATITUDE"))
+LONGITUDE = float(os.getenv("LONGITUDE"))
 api_key = os.getenv("ANTHROPIC_API_KEY")
+optimal_conditions = {'temperature_2m': float(os.getenv("OPTIMAL_TEMP")),
+                      'cloudcover': float(os.getenv("OPTIMAL_CLOUD")),
+                      'windspeed_10m': float(os.getenv("OPTIMAL_WIND"))}
+
+
+# Note will need to pass these in from app
+df1 = pd.read_csv("Data/weather_data.csv")
+df1['time'] = pd.to_datetime(df1['time'])
+
+# calculating nightime windows
+timezone_offset = 8
+s1, s2 = return_nightimes(df1, timezone_offset)
+forecasted_conditions = {'temperature_2m': df1['temperature_2m'].to_list(),
+                         'cloudcover': df1['cloudcover'].to_list(),
+                         'windspeed_10m': df1['windspeed_10m'].to_list()}
+
+# Rating weather conditions
+max_window = len(df1['temperature_2m'].to_list())
+conditions = find_optimal_window(optimal_conditions, forecasted_conditions, max_window)
+# Adding forecast to dataframe
+df1['Forecast_Score'] = conditions['Score']
+
+latitude = 45.5152
+longitude = -122.6784
 #df1 = df1[(df1['latitude'] == latitude) & (df1['longitude'] == longitude)]
 
 # defining header
@@ -107,8 +137,11 @@ layout = html.Div([
                             # Div for forecast
                             dbc.Col([
                                 #html.Div([], id='test-forecast-out')
-                                dcc.Graph(id='test-forecast-out')
 
+                                dcc.Graph(
+                                    id='test-forecast-out',
+                                    hoverData={'points': [{'x': df1['time'].min()}]}
+                                )
                             ]),
                             dbc.Col([
                                 html.Div([
@@ -131,6 +164,7 @@ layout = html.Div([
 
 
 
+
 # callback for weekly forecast for individual series(temp, wind, etc)
 @callback(
     Output(component_id='test-forecast-out', component_property='figure'),
@@ -140,17 +174,12 @@ layout = html.Div([
     Input('wind-click', 'n_clicks'),
     Input('cloud-click', 'n_clicks'),
     Input('overall-click', 'n_clicks'),
-    Input("measurement-switch", 'value'),
-    Input('stored-forecast', 'data'),
-
+    Input("measurement-switch", 'value')
 
 )
-def update_timeseries(button1, button2, button3, button4, button5, button6, switch, df1):
+def update_timeseries(button1, button2, button3, button4, button5, button6, switch):
 
-    filtered_df = pd.read_json(df1, orient='split')
-    filtered_df ['time'] = pd.to_datetime(filtered_df['time'])
-
-
+    filtered_df = df1
     # if we're filtering for only 1 day
     if "forecast-click2" == ctx.triggered_id:
         filtered_df = df1[df1['time'].dt.date <  df1['time'].dt.date.min() + datetime.timedelta(days=1)]
@@ -174,10 +203,10 @@ def update_timeseries(button1, button2, button3, button4, button5, button6, swit
             forecast_type = 'temperature_F'
 
     # Creating graph figure
-    timezone_offset = 8
-    s1, s2 = return_nightimes(filtered_df, timezone_offset)
+    print(forecast_type)
     time_fig = generate_timeseries_plot(filtered_df, 'time', forecast_type, s1, s2)
-
+  
+    #return draw_Image(time_fig)
     return time_fig
     
     
@@ -188,22 +217,13 @@ def update_timeseries(button1, button2, button3, button4, button5, button6, swit
     Input('forecast-click1', 'n_clicks'),
     Input('forecast-click2', 'n_clicks'),
     Input("measurement-switch", 'value'),
-    Input('test-forecast-out', 'hoverData'),
-    Input('stored-forecast', 'data'),
-    Input('optimal-conditions', 'data')
+    Input('test-forecast-out', 'hoverData')
 )
 
-def update_kpi(val1, val2, switch, hoverData, df1, optimalconditions):
+def update_kpi(val1, val2, switch, hoverData):
 
-
-    filtered_df = pd.read_json(df1, orient='split')
-    filtered_df ['time'] = pd.to_datetime(filtered_df['time'])
-
-    time_selected = filtered_df['time'].min()
-    # if data has been selected update hilter point
-    if hoverData is not None:
-        time_selected = hoverData['points'][0]['x']
-    
+    time_selected = hoverData['points'][0]['x']
+    filtered_df = df1
     temp, wind, cloud, prec = "", "", "", ""
     temp_trailer, wind_trailer = "", ""
     if 'Metric' in switch:
@@ -222,11 +242,11 @@ def update_kpi(val1, val2, switch, hoverData, df1, optimalconditions):
     cloud = filtered_df['cloudcover']
     prec = filtered_df['precipitation_probability']
 
-    # Extracting optimal conditions from user preference
-    ideal_temp = optimalconditions['temperature_2m']
-    ideal_wind = optimalconditions['windspeed_10m']
-    ideal_cloud = optimalconditions['cloudcover']
-    ideal_prec = optimalconditions['rain']
+
+    ideal_temp = os.getenv("OPTIMAL_TEMP")
+    ideal_wind = os.getenv("OPTIMAL_WIND")
+    ideal_cloud = os.getenv("OPTIMAL_CLOUD")
+    ideal_prec = os.getenv("OPTIMAL_PREC")
 
     return dbc.Col([
                     dbc.Row([
@@ -261,16 +281,13 @@ def update_kpi(val1, val2, switch, hoverData, df1, optimalconditions):
 
 def update_kpi(hoverData):
 
-    date, am_pm = 0, 'pm'
-    # If hoverdata is not none use this for date/time
-    if hoverData is not None:
-        time_selected = hoverData['points'][0]['x']
-        hours = time_selected[-5:][:2]
+    time_selected = hoverData['points'][0]['x']
+    hours = time_selected[-5:][:2]
 
-        # converting 00 - 24 to am_pm format
-        am_pm = convert_to_am_pm(hours)
+    # converting 00 - 24 to am_pm format
+    am_pm = convert_to_am_pm(hours)
 
-        date = time_selected[5:10]
+    date = time_selected[5:10]
     return 'Forecast {time}'.format(time = str(date) + ", " + am_pm)
     
     
