@@ -173,7 +173,6 @@ def login_button_click(n_clicks, username, password):
     return dash.no_update, dash.no_update # Return a placeholder to indicate no update
 
 
-
 # Main router
 @callback(Output('page-content', 'children'), 
           Output('redirect', 'pathname'),

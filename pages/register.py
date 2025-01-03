@@ -15,6 +15,13 @@ REGISTER_STYLE = {}
 with open('style/register_style.json') as f:
     REGISTER_STYLE = json.load(f)
 
+# Defining button styles
+grey_button_style = {'background-color':"grey",
+                     'color': 'white'}
+green_button_style = {'background-color':"green",
+                      'color': 'white'}
+
+
 # Defining page layout
 layout = html.Div([
     dbc.Col(
@@ -44,10 +51,12 @@ layout = html.Div([
                     dcc.Input(placeholder='Confirm your password',
                                 type='password', id='register-pwd-box2'),
                     html.Div(id="password-error"),
-                    html.H5('Address'),
-                    dcc.Input(placeholder='Enter your Address',
-                                type='text', id='address-box'),
-                    html.H4('Weather Conditions'),
+
+                    html.H5('Location'),
+                    dbc.Button('Accept Location Tracking', n_clicks=0,className="me-2", 
+                               id='location-button'),
+                    dcc.Geolocation(id="geolocation"),
+
                     html.H5('Input your ideal running conditions:'),
                     html.P('Temperature'),
                     dcc.Slider(40, 100, value=65,
@@ -82,7 +91,7 @@ layout = html.Div([
                     ),
                     html.Br(),
                     html.Br(),
-                    dbc.Button('Register', n_clicks=0,className="me-2", id='Register-button'),
+                    dbc.Button('Register', n_clicks=0,className="me-1", id='Register-button'),
 
                 ],style = {'align-items':'center', 'justify-content':'center', }),
                 html.Div(id = 'registration-message')
@@ -92,33 +101,48 @@ layout = html.Div([
     )
 ], style=REGISTER_STYLE)
 
-# Callback for registering user
+
+# Callback to update appearance of location button if user has accepted tracking
+@callback(Output('location-button', 'style'), Input('location-button', 'n_clicks'))
+
+def location_success(n_clicks):
+
+    # If the button has most recently been pressed
+    if n_clicks % 2 != 0:
+        return green_button_style
+
+    else:
+        return grey_button_style
+
+
+# Callback to register user
 @callback(
     Output("password-error", "children"),
     Output("registration-message", "children"),
+    Output("Register-button", "style"),
     Input("Register-button", "n_clicks"),
     Input("register-uname-box", "value"),
     Input("register-email-box", "value"),
     Input("register-pwd-box", "value"),
     Input("register-pwd-box2", "value"),
-    Input('address-box', "value"),
+    Input("geolocation", "position"),
     Input('temp-slider', 'value'),
     Input('rain-slider', 'value'),
     Input('cloud-slider', 'value'),
     prevent_initial_call = True
 )
-def register_user_to_database(n_clicks, username, email, password1, password2, address, temp, rain, cloud):
+def register_user_to_database(n_clicks, username, email, password1, password2, position, temp, rain, cloud):
     
     # extracting latitude/longitude from address
     registration_error = ""
-
+    print(position)
     # If button has been pressed
     if dash.callback_context.triggered_id == 'Register-button':
         # If all fields have been entered 
-        if None not in [username, email, email, password1, password2, address]:
-            print([username, email, email, password1, password2, address])
+        if None not in [username, email, email, password1, password2, position]:
+            print([username, email, email, password1, password2, position])
             check_username = retrieve_user_from_db(username)
-            latitude, longitude = search_address(address)
+            latitude, longitude = position['lat'], position['lon']
 
             # If the username already exists notify user
             if len(check_username) > 0:
@@ -134,10 +158,10 @@ def register_user_to_database(n_clicks, username, email, password1, password2, a
                 print(registration_error)
                 if registration_error == "no error":
                     insert_user(username, password1, str(latitude), str(longitude))
-                    return html.Div([html.P(registration_error)]), html.Div([html.H3('Successfully Registered!')])
+                    return html.Div([html.P(registration_error)]), html.Div([html.H3('Successfully Registered!')]), green_button_style
 
         
     if registration_error == 'no error':
         registration_error = ""
     
-    return html.Div([html.P(registration_error)]),  html.Div([])
+    return html.Div([html.P(registration_error)]),  html.Div([]), grey_button_style
