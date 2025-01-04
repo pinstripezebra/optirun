@@ -140,10 +140,11 @@ layout = html.Div([
     Input('overall-click', 'n_clicks'),
     Input("measurement-switch", 'value'),
     Input('stored-forecast', 'data'),
+    Input('location-storage', 'data')
 
 
 )
-def update_timeseries(button1, button2, button3, button4, button5, button6, switch, df1):
+def update_timeseries(button1, button2, button3, button4, button5, button6, switch, df1, location):
 
     filtered_df = pd.read_json(df1, orient='split')
     filtered_df ['time'] = pd.to_datetime(filtered_df['time'])
@@ -176,8 +177,9 @@ def update_timeseries(button1, button2, button3, button4, button5, button6, swit
             forecast_type = ['Forecast_Score', 'windspeed_MPH', 'cloudcover', 'temperature_F']
 
     # Creating graph figure
+    # Need to input latitude/longitude from store
     timezone_offset = 8
-    s1, s2 = return_nightimes(filtered_df, timezone_offset)
+    s1, s2 = return_nightimes(filtered_df, timezone_offset, location)
     time_fig = generate_timeseries_plot(filtered_df, 'time', forecast_type, s1, s2)
 
     return time_fig

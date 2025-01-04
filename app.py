@@ -94,8 +94,9 @@ app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     dcc.Location(id='redirect', refresh=True),
     dcc.Store(id='login-status', storage_type='local'),
-    dcc.Store(id='stored-forecast', storage_type='local'),
-    dcc.Store(id='optimal-conditions', storage_type='local'),
+    dcc.Store(id='stored-forecast', storage_type='local'), # for storing weather forecast in dataframe
+    dcc.Store(id='optimal-conditions', storage_type='local'), # for storing optimal conditions in dictionary
+    dcc.Store(id='location-storage', storage_type='local'), # for storing latitude/longitude in dictionary
     html.Div(id='page-content'),
 ])
 
@@ -156,7 +157,11 @@ home_page = html.Div([
 
 # Callback function to login the user, or update the screen if the username or password are incorrect
 @callback(
-    [Output('url_login', 'pathname'), Output('output-state', 'children'), Output('stored-forecast', 'data'),Output('optimal-conditions', 'data')], 
+    [Output('url_login', 'pathname'), 
+     Output('output-state', 'children'), 
+     Output('stored-forecast', 'data'),
+     Output('optimal-conditions', 'data'),
+     Output('location-storage', 'data')], 
     [Input('login-button', 'n_clicks')], [State('uname-box', 'value'), State('pwd-box', 'value')])
 def login_button_click(n_clicks, username, password):
     if n_clicks > 0:
@@ -180,7 +185,7 @@ def login_button_click(n_clicks, username, password):
             login_user(user)
 
             # Logging forecast to store for consumption in other pages
-            df1 = data_pipeline(repull_data, current_user.latitude, current_user.longitude)
+            df1 = data_pipeline(repull_data, user.latitude, user.longitude)
             df1['time'] = df1.index
             df1.reset_index(drop = True)
             df1['time'] = pd.to_datetime(df1['time'])
@@ -193,11 +198,13 @@ def login_button_click(n_clicks, username, password):
             max_window = len(df1['temperature_2m'].to_list())
             conditions = find_optimal_window(optimal_conditions, forecasted_conditions, max_window)
             df1['Forecast_Score'] = conditions['Score'].to_list()
-
+            location = {'latitude': user.latitude,
+                        'longitude': user.longitude}
+            
             # navigate to landing page if logged in successfully 
-            return '/landing', '', df1.to_json(date_format='iso', orient='split'), optimal_conditions
+            return '/landing', '', df1.to_json(date_format='iso', orient='split'), optimal_conditions, location
         else:
-            return '/login', 'Incorrect username or password', 'incorrect username'
+            return '/login', 'Incorrect username or password', 'incorrect username', '', ''
 
     return dash.no_update, dash.no_update, '', '' # Return a placeholder to indicate no update
 
