@@ -2,3 +2,6 @@
 .venv
 prototyping.ipynb
 postgress_test.ipynb
+.ipynb_checkpoints/
+.ipynb_checkpoints
+*.ipynb
