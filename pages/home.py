@@ -57,7 +57,6 @@ header = html.Div([
                 'opacity': '80%',
                 "border": "#090b0b"})
 
-
 # Defining layout
 layout = html.Div([
         header,
@@ -114,10 +113,7 @@ layout = html.Div([
                                 ], style={'text-indent': '80px'}),
                                 # Div for kpis
                                 html.Div([], id='kpi-indicators'),
-                                html.Div(html.H3('Placeholder'))#[draw_Text(query_condition_description(api_key, 
-                                                                #                [df1['temperature_2m'][0],
-                                                                #                df1['windspeed_10m'][0],
-                                                                #               df1['cloudcover'][0]]))])
+                                html.Div([], id = 'forecast-ai-figure')
                             ])
                         ]) ,
 
@@ -149,6 +145,9 @@ def update_timeseries(button1, button2, button3, button4, button5, button6, swit
     filtered_df = pd.read_json(df1, orient='split')
     filtered_df ['time'] = pd.to_datetime(filtered_df['time'])
 
+    # Filtering for next 12 hours
+    next_12_hours = filtered_df.head(12)
+    best_bucket = next_12_hours[next_12_hours['Forecast_Score'] == next_12_hours['Forecast_Score'].max()]
 
     # if we're filtering for only 1 day
     if "forecast-click2" == ctx.triggered_id:
@@ -189,6 +188,7 @@ def update_timeseries(button1, button2, button3, button4, button5, button6, swit
 # callback for kpi's
 @callback(
     Output(component_id='kpi-indicators', component_property='children'),
+    Output(component_id='forecast-ai-figure', component_property='children'),
     Input('forecast-click1', 'n_clicks'),
     Input('forecast-click2', 'n_clicks'),
     Input("measurement-switch", 'value'),
@@ -202,6 +202,10 @@ def update_kpi(val1, val2, switch, hoverData, df1, optimalconditions):
 
     filtered_df = pd.read_json(df1, orient='split')
     filtered_df ['time'] = pd.to_datetime(filtered_df['time'])
+
+    # Filtering for next 12 hours
+    next_12_hours = filtered_df.head(12)
+    best_bucket = next_12_hours[next_12_hours['Forecast_Score'] == next_12_hours['Forecast_Score'].max()]
 
     time_selected = filtered_df['time'].min()
     # if data has been selected update hilter point
@@ -232,7 +236,7 @@ def update_kpi(val1, val2, switch, hoverData, df1, optimalconditions):
     ideal_cloud = optimalconditions['cloudcover']
     ideal_prec = optimalconditions['precipitation_probability']
 
-    return dbc.Col([
+    kpi_fig = dbc.Col([
                     dbc.Row([
                         dbc.Col([
                             draw_Text_With_Background(int(temp), ideal_temp, chr(176) + temp_trailer, "./assets/temperature.png", 150)
@@ -254,8 +258,13 @@ def update_kpi(val1, val2, switch, hoverData, df1, optimalconditions):
                             "width": "80%",
                             "padding": "0rem 0rem"})
                 ], 
-)
+            )       
 
+    text_fig = draw_Text(query_condition_description(api_key, [best_bucket['temperature_2m'].to_list()[0],
+                                                            best_bucket['windspeed_10m'].to_list()[0],
+                                                            best_bucket['cloudcover'].to_list()[0]]))
+
+    return kpi_fig, text_fig
 
 # callback for kpi time
 @callback(
