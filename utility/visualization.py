@@ -136,8 +136,7 @@ def draw_Text_With_Background(input_val, ideal_val, trailer, input_img, box_heig
 )])
 
 def generate_timeseries_plot(df, x:str, y:list, s1: list, s2: list):
-    print('Y  ', y)
-    print(df.columns)
+
     color_mapping = {'Forecast_Score': dict(color='royalblue', width=5),
                      'windspeed_10m': dict(color='#ff7f0e', width=3, dash='dash'),
                      'windspeed_MPH': dict(color='#ff7f0e', width=3, dash='dash'),
@@ -157,13 +156,14 @@ def generate_timeseries_plot(df, x:str, y:list, s1: list, s2: list):
     # Finding min/max times from forecast series to align with day/night series
     min_time = df['time'].min().tz_localize('UTC')
     max_time = df['time'].max().tz_localize('UTC')
+    if s2[0] < min_time:
+        s2[0] = min_time
+    s1 = s1[1:]
     while i < len(s1)-1:
-
         # start is todays sunset
         start = s2[i]
         # end is tomorrows sunrise
         end = s1[i]
-
         # If both night start/end are within our forecast series
         if (start > min_time) and (end < max_time):
             # add shaded region
@@ -174,11 +174,11 @@ def generate_timeseries_plot(df, x:str, y:list, s1: list, s2: list):
                 opacity=0.5,
                 line_width=1
             )
+
         # If its a left edgecase
-        elif (start < min_time) and (end > min_time):
-            start = min_time
+        elif (start <= min_time):
             time_fig.add_vrect(
-                x0=start,
+                x0=min_time,
                 x1=end,
                 fillcolor="black",
                 opacity=0.5,
@@ -186,11 +186,10 @@ def generate_timeseries_plot(df, x:str, y:list, s1: list, s2: list):
             )
         
         # If its a right edgecase
-        elif ( start < max_time) and (end > max_time):
-            end = max_time
+        elif (end >= max_time):
             time_fig.add_vrect(
                 x0=start,
-                x1=end,
+                x1=max_time,
                 fillcolor="black",
                 opacity=0.5,
                 line_width=1,
