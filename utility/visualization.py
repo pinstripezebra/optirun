@@ -135,13 +135,24 @@ def draw_Text_With_Background(input_val, ideal_val, trailer, input_img, box_heig
     ],color = display_color, style = {"height": box_height}
 )])
 
-def generate_timeseries_plot(df, x:str, y:str, s1: list, s2: list):
+def generate_timeseries_plot(df, x:str, y:list, s1: list, s2: list):
+    print('Y  ', y)
+    print(df.columns)
+    color_mapping = {'Forecast_Score': dict(color='royalblue', width=5),
+                     'windspeed_10m': dict(color='#ff7f0e', width=3, dash='dash'),
+                     'windspeed_MPH': dict(color='#ff7f0e', width=3, dash='dash'),
+                     'cloudcover': dict(color='#1f77b4', width=3, dash='dash'),
+                     'temperature_2m': dict(color='firebrick', width=3, dash='dash'),
+                     'temperature_F': dict(color='firebrick', width=3, dash='dash')
+    }
 
+    time_fig = fig = go.Figure()
+    # Generating figure
+    for i in y:
+        time_fig.add_trace(go.Scatter(x=df['time'], y=df[i],
+                            name = i,
+                            line = color_mapping[i]))
 
-    time_fig = px.line(df, x = 'time', y = y,
-                            title = '{type} Forecast'.format(type = y), 
-                           markers=True,
-                            hover_data = x)
     i = 0
     # Finding min/max times from forecast series to align with day/night series
     min_time = df['time'].min().tz_localize('UTC')
@@ -192,17 +203,18 @@ def generate_timeseries_plot(df, x:str, y:str, s1: list, s2: list):
         ))
     
     # creating y axis label
-    y = y.replace(" ", "")
     y_axis_label = ""
-    if y == "windspeed_10m":
+    if len(y) > 1:
+        y_axis_label = "Overall Forecast"
+    elif y[0].replace(" ", "") == "windspeed_10m":
         y_axis_label = "windspeed(KPH)"
-    elif y == "windspeed_MPH":
+    elif y[0].replace(" ", "")  == "windspeed_MPH":
         y_axis_label = "windspeed(MPH)"
-    elif y == "cloudcover":
+    elif y[0].replace(" ", "")  == "cloudcover":
         y_axis_label = "cloudcover(%)"
-    elif y == "temperature_2m":
+    elif y[0].replace(" ", "")  == "temperature_2m":
         y_axis_label = "Temperature(C{temp})".format(temp = chr(176))
-    elif y == "temperature_F":
+    elif y[0].replace(" ", "")  == "temperature_F":
         y_axis_label = "Temperature(F{temp})".format(temp = chr(176))
 
 

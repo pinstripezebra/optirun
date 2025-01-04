@@ -65,8 +65,8 @@ def load_user(username):
     latitude, longitude = float(user_df['latitude'].to_list()[0]), float(user_df['longitude'].to_list()[0])
     password = user_df['password'].to_list()[0]
     optimal_conditions = {'temperature_2m': float(user_df['temperature'].to_list()[0]),
-                                    'cloudcover': float(user_df['cloud'].to_list()[0]),
-                                    'windspeed_10m': float(user_df['rain'].to_list()[0])}
+                          'cloudcover': float(user_df['cloud'].to_list()[0]),
+                          'windspeed_10m': float(user_df['rain'].to_list()[0])}
     
     return User(username,password, latitude, longitude, optimal_conditions)
 
@@ -172,7 +172,7 @@ def login_button_click(n_clicks, username, password):
             optimal_conditions = {'temperature_2m': float(user_df['temperature'].to_list()[0]),
                                   'cloudcover': float(user_df['cloud'].to_list()[0]),
                                   'windspeed_10m': float(user_df['wind'].to_list()[0]),
-                                  'rain': float(user_df['rain'].to_list()[0])}
+                                  'precipitation_probability': float(user_df['rain'].to_list()[0])}
 
 
             # logging user in
@@ -186,7 +186,8 @@ def login_button_click(n_clicks, username, password):
             df1['time'] = pd.to_datetime(df1['time'])
             forecasted_conditions = {'temperature_2m': df1['temperature_2m'].to_list(),
                                      'cloudcover': df1['cloudcover'].to_list(),
-                                      'windspeed_10m': df1['windspeed_10m'].to_list()}
+                                      'windspeed_10m': df1['windspeed_10m'].to_list(),
+                                      'precipitation_probability': df1['precipitation_probability'].to_list()}
 
             # Rating weather conditions and adding overall score to dataframe
             max_window = len(df1['temperature_2m'].to_list())

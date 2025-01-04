@@ -21,7 +21,6 @@ dash.register_page(__name__, path='/landing')
 
 # Loading json files containing component styles
 CONTENT_STYLE= {}
-
 with open('style/content_style.json') as f:
     CONTENT_STYLE = json.load(f)
 
@@ -29,7 +28,6 @@ with open('style/content_style.json') as f:
 dotenv_path = find_dotenv()
 load_dotenv(dotenv_path)
 api_key = os.getenv("ANTHROPIC_API_KEY")
-#df1 = df1[(df1['latitude'] == latitude) & (df1['longitude'] == longitude)]
 
 # defining header
 header = html.Div([
@@ -52,7 +50,7 @@ header = html.Div([
             html.P('Metric',style={'display': 'inline' }),
         ],style={'display': 'inline' ,
                  'margin-left': '600px'}),
-    ], style = {"background-color": "#219aee",
+    ], style = {"background-color": "#DCDCDC",
                 "width": "80%",
                 "display": "flex",
                 "margin-left": "18rem",
@@ -79,7 +77,7 @@ layout = html.Div([
                             html.Div(children= [
                             html.P('Choose the type of forecast', className = 'text'),
                             html.Div([
-                                dbc.Button('Forecast_Score', color = 'primary', id='overall-click',className="btn active", n_clicks=0),
+                                dbc.Button('Overall Forecast', color = 'primary', id='overall-click',className="btn active", n_clicks=0),
                                 dbc.Button('temp',  color = 'primary', id='temp-click',className="me-1", n_clicks=0),
                                 dbc.Button('wind',  color = 'primary', id='wind-click',className="me-1", n_clicks=0),
                                 dbc.Button('cloud',  color = 'primary', id='cloud-click',className="me-1", n_clicks=0)
@@ -153,25 +151,29 @@ def update_timeseries(button1, button2, button3, button4, button5, button6, swit
 
     # if we're filtering for only 1 day
     if "forecast-click2" == ctx.triggered_id:
-        filtered_df = df1[df1['time'].dt.date <  df1['time'].dt.date.min() + datetime.timedelta(days=1)]
+        filtered_df = filtered_df[filtered_df['time'].dt.date <  filtered_df['time'].dt.date.min() + datetime.timedelta(days=1)]
     time_fig = ""
     forecast_type = "temperature_2m"
 
     if 'wind-click'== ctx.triggered_id:
         if 'Metric' in switch:
-            forecast_type = 'windspeed_10m'
+            forecast_type = ['windspeed_10m']
         else:
-            forecast_type = 'windspeed_MPH'
+            forecast_type = ['windspeed_MPH']
     elif 'cloud-click' == ctx.triggered_id:
-        forecast_type = 'cloudcover'
-    elif 'overall-click' == ctx.triggered_id:
-        forecast_type = 'Forecast_Score'
-    # Temperature
+        forecast_type = ['cloudcover']
+    elif 'temp-click' == ctx.triggered_id:
+        if 'Metric' in switch:
+            forecast_type = ['temperature_2m']
+        else:
+            forecast_type = ['temperature_F']
+    
+    # If none of the above then show all data
     else:
         if 'Metric' in switch:
-            forecast_type = 'temperature_2m'
+            forecast_type = ['Forecast_Score', 'windspeed_10m', 'cloudcover', 'temperature_2m']
         else:
-            forecast_type = 'temperature_F'
+            forecast_type = ['Forecast_Score', 'windspeed_MPH', 'cloudcover', 'temperature_F']
 
     # Creating graph figure
     timezone_offset = 8
@@ -226,7 +228,7 @@ def update_kpi(val1, val2, switch, hoverData, df1, optimalconditions):
     ideal_temp = optimalconditions['temperature_2m']
     ideal_wind = optimalconditions['windspeed_10m']
     ideal_cloud = optimalconditions['cloudcover']
-    ideal_prec = optimalconditions['rain']
+    ideal_prec = optimalconditions['precipitation_probability']
 
     return dbc.Col([
                     dbc.Row([
