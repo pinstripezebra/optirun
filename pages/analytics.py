@@ -10,6 +10,7 @@ from utility.visualization import generate_run_plot, draw_Image, draw_Text, gene
 from dotenv import find_dotenv, load_dotenv
 from utility.measurement import find_optimal_window, return_nightimes
 from utility.chatbot import query_condition_description
+import json
 
 dash.register_page(__name__, path='/analytic')
 
@@ -18,9 +19,15 @@ dotenv_path = find_dotenv()
 load_dotenv(dotenv_path)
 api_key = os.getenv("ANTHROPIC_API_KEY")
 
+# Loading json files containing component styles
+CONTENT_STYLE= {}
+with open('style/content_style.json') as f:
+    CONTENT_STYLE = json.load(f)
+
 layout = html.Div([
     html.H1('Running Outlook Today'),
-    html.Div([],style= {'width': '50%'}, id='best-times-forecast'),
+    html.Div([], id = 'running-gauges'),
+    html.Div([],style= {'width': '80%'}, id='best-times-forecast'),
     html.H3('Condition Overview'),
     dbc.Row([
         html.Div([], id = 'forecast-figure')
@@ -28,8 +35,8 @@ layout = html.Div([
     html.Br(),
 
    # Generates gauges of forecast
-    html.Div([], id = 'running-gauges')
-])
+    #html.Div([], id = 'running-gauges')
+], style = CONTENT_STYLE)
 
 
 # callback for running gauges
