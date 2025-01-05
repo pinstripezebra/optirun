@@ -151,7 +151,7 @@ def validate_registration(name: str, password: str, latitude: str, longitude: st
         error = "no error"
     return error
 
-def insert_user(name: str, password: str, latitude: str, longitude: str, temp:float, rain:float, cloud:float):
+def insert_user(name: str, password: str, latitude: str, longitude: str, temp:float, rain:float, cloud:float, wind:float):
     """
     Registers user to database
     """
@@ -162,13 +162,14 @@ def insert_user(name: str, password: str, latitude: str, longitude: str, temp:fl
 
     # Passing input parameters
     insertion = read_file_into_string(filename)
-    insertion = insertion.format(name1 = "'" + name + "'" ,
+    insertion = insertion.format(username1 = "'" + name + "'" ,
                                     password1 = "'" + password + "'" ,
                                     latitude1 = "'" + latitude + "'" ,
                                     longitude1 = "'" + longitude + "'",
-                                    temp = "'" + temp + "'",
-                                    rain = "'" + rain + "'",
-                                    cloud = "'" + cloud + "'",
+                                    temperature1 = "'" + str(round(temp,2)) + "'",
+                                    rain1 = "'" + str(round(rain,2)) + "'",
+                                    cloud1 = "'" + str(round(cloud,2)) + "'",
+                                    wind1 = "'" + str(round(wind,2)) + "'",
                                     admin_status1 = 0)
     print(insertion)
     # retrieiving server + database information

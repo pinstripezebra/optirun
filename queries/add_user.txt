@@ -1,2 +1,2 @@
 INSERT INTO users (username, password, latitude, longitude, temperature, rain, cloud,wind ,admin_status)
-VALUES ({name1}, {password1}, {latitude1}, {longitude1}, {temp}, {rain}, {cloud},{wind}, {admin_status1});
+VALUES ({username1}, {password1}, {latitude1}, {longitude1}, {temperature1}, {rain1}, {cloud1},{wind1}, {admin_status1});

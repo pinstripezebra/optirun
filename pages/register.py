@@ -70,9 +70,9 @@ layout = html.Div([
                             id = 'temp-slider'
                     ),
                     html.P('Precipitation'),
-                    dcc.Slider(0, 100, value=0,
+                    dcc.Slider(0, 100, value=0.1,
                             marks={
-                                0: {'label': 'No Rain',},
+                                0.1: {'label': 'No Rain',},
                                 50: {'label': 'Moderate Rain'},
                                 100: {'label': 'Heavy Rain'}
                             },
@@ -80,9 +80,9 @@ layout = html.Div([
                             id = 'rain-slider'
                     ),
                     html.P('Cloud Cover'),
-                    dcc.Slider(0, 100, value=0,
+                    dcc.Slider(0, 100, value=0.1,
                             marks={
-                                0: {'label': 'No Clouds',},
+                                0.1: {'label': 'No Clouds',},
                                 50: {'label': 'Moderate Clouds'},
                                 100: {'label': 'Heavy Clouds'}
                             },
@@ -134,6 +134,7 @@ def location_success(n_clicks):
 def register_user_to_database(n_clicks, username, email, password1, password2, position, temp, rain, cloud):
     
     # extracting latitude/longitude from address
+    wind = 0.1
     registration_error = ""
     print(position)
     # If button has been pressed
@@ -157,7 +158,7 @@ def register_user_to_database(n_clicks, username, email, password1, password2, p
                 registration_error = validate_registration(username, password1, latitude, longitude)
                 print(registration_error)
                 if registration_error == "no error":
-                    insert_user(username, password1, str(latitude), str(longitude))
+                    insert_user(username, password1, str(latitude), str(longitude), temp, rain, cloud, wind)
                     return html.Div([html.P(registration_error)]), html.Div([html.H3('Successfully Registered!')]), green_button_style
 
         
