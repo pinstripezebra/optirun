@@ -154,7 +154,7 @@ def register_user_to_database(n_clicks, username, email, password1, password2, p
 
             # Checking that passwords match
             else:
-                registration_error = validate_registration(username, password1, latitude, longitude, temp, rain, cloud)
+                registration_error = validate_registration(username, password1, latitude, longitude)
                 print(registration_error)
                 if registration_error == "no error":
                     insert_user(username, password1, str(latitude), str(longitude))
