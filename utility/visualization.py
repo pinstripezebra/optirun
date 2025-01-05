@@ -7,11 +7,6 @@ from dash import Dash, dcc, html, callback,Input, Output,dash_table
 import dash_bootstrap_components as dbc
 import plotly.express as px
 
-kpi_card_style = {
-    'color': 'black', 
-    'opacity': '0.8',
-    'background':'LightGray'
-}
 
 graph_card_style = {
     'color': 'black', 
@@ -91,7 +86,7 @@ def draw_table(input_figure):
             ,),  
         ])
 
-def draw_Text(input_text):
+def draw_Text(input_text, style):
 
     return html.Div([
             dbc.Card(
@@ -99,8 +94,7 @@ def draw_Text(input_text):
                         html.Div([
                             html.P(input_text),
                         ], style={'textAlign': 'center'}) 
-                ])
-            ,style = kpi_card_style),
+                ]),style = style),
         ])
 
 def draw_Text_With_Background(input_val, ideal_val, trailer, input_img, box_height):

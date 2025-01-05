@@ -24,6 +24,12 @@ api_key = os.getenv("ANTHROPIC_API_KEY")
 CONTENT_STYLE= {}
 with open('style/content_style.json') as f:
     CONTENT_STYLE = json.load(f)
+kpi_card_body = {
+    'color': 'black', 
+    'opacity': '0.8',
+    'background':'LightGray',
+    'width':"36rem"
+}
 
 # defining header
 header = html.Div([
@@ -90,7 +96,7 @@ def update_timeseries(df, location, switch):
     end_time = start_time + timedelta(hours=1)
 
     # best forecast return
-    best_forecast = draw_Text(html.P("The best expected running time today is between {start} and {end}.".format(start = start_time, end = end_time))),
+    best_forecast = draw_Text(html.P("The best expected running time today is between {start} and {end}.".format(start = start_time, end = end_time)), kpi_card_body ),
 
     gauges, forecast_return = "", ""
     # If we want to use metric
@@ -116,7 +122,7 @@ def update_timeseries(df, location, switch):
         # forecast return
         forecast_return = draw_Text(query_condition_description(api_key, [best_bucket['temperature_2m'].to_list()[0],
                                                             best_bucket['windspeed_10m'].to_list()[0],
-                                                            best_bucket['cloudcover'].to_list()[0]]))
+                                                            best_bucket['cloudcover'].to_list()[0]]), kpi_card_body )
         
     # if our units are imperial
     else:
@@ -141,7 +147,7 @@ def update_timeseries(df, location, switch):
         # forecast return
         forecast_return = draw_Text(query_condition_description(api_key, [best_bucket['temperature_F'].to_list()[0],
                                                             best_bucket['windspeed_MPH'].to_list()[0],
-                                                            best_bucket['cloudcover'].to_list()[0]]))
+                                                            best_bucket['cloudcover'].to_list()[0]]),kpi_card_body )
 
     return  best_forecast, gauges, forecast_return
 

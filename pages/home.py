@@ -16,6 +16,7 @@ from suntime import Sun, SunTimeException
 from dotenv import find_dotenv, load_dotenv
 import os
 import json
+from datetime import datetime, timedelta
 
 dash.register_page(__name__, path='/landing')
 
@@ -23,6 +24,20 @@ dash.register_page(__name__, path='/landing')
 CONTENT_STYLE= {}
 with open('style/content_style.json') as f:
     CONTENT_STYLE = json.load(f)
+
+kpi_card_title = {
+    'color': 'black', 
+    'opacity': '0.8',
+    'background':'LightGray',
+    'width':"24rem"
+}
+kpi_card_body = {
+    'color': 'black', 
+    'opacity': '0.8',
+    'background':'LightGray',
+    'width':"36rem"
+}
+
 
 # loading environmental variables
 dotenv_path = find_dotenv()
@@ -108,11 +123,10 @@ layout = html.Div([
 
                             ]),
                             dbc.Col([
-                                html.Div([
-                                    html.H3(id = 'kpi-time'),
-                                ], style={'text-indent': '80px'}),
+                                html.Div([],id = 'kpi-time', style={'text-indent': '80px'}),
                                 # Div for kpis
                                 html.Div([], id='kpi-indicators'),
+                                html.Div([], id = 'running-best-time'),
                                 html.Div([], id = 'forecast-ai-figure')
                             ])
                         ]) ,
@@ -188,7 +202,6 @@ def update_timeseries(button1, button2, button3, button4, button5, button6, swit
 # callback for kpi's
 @callback(
     Output(component_id='kpi-indicators', component_property='children'),
-    Output(component_id='forecast-ai-figure', component_property='children'),
     Input('forecast-click1', 'n_clicks'),
     Input('forecast-click2', 'n_clicks'),
     Input("measurement-switch", 'value'),
@@ -202,10 +215,6 @@ def update_kpi(val1, val2, switch, hoverData, df1, optimalconditions):
 
     filtered_df = pd.read_json(df1, orient='split')
     filtered_df ['time'] = pd.to_datetime(filtered_df['time'])
-
-    # Filtering for next 12 hours
-    next_12_hours = filtered_df.head(12)
-    best_bucket = next_12_hours[next_12_hours['Forecast_Score'] == next_12_hours['Forecast_Score'].max()]
 
     time_selected = filtered_df['time'].min()
     # if data has been selected update hilter point
@@ -259,12 +268,37 @@ def update_kpi(val1, val2, switch, hoverData, df1, optimalconditions):
                             "padding": "0rem 0rem"})
                 ], 
             )       
+    return kpi_fig
 
+
+# callback for  AI summary and best time recommmendation
+@callback(
+    Output(component_id='forecast-ai-figure', component_property='children'),
+    Output(component_id='running-best-time', component_property='children'),
+    Input('stored-forecast', 'data'),
+)
+def update_ai_summary(df1):
+
+    filtered_df = pd.read_json(df1, orient='split')
+    filtered_df ['time'] = pd.to_datetime(filtered_df['time'])
+
+    # Filtering for next 12 hours
+    next_12_hours = filtered_df.head(12)
+    best_bucket = next_12_hours[next_12_hours['Forecast_Score'] == next_12_hours['Forecast_Score'].max()]
+    start_time = best_bucket['time'].to_list()[0]
+    end_time = start_time + timedelta(hours=1)
+
+    # Generating best forecast in next 12 hours
+    best_forecast = draw_Text(html.P("Best Running Time Today: {start} to {end}.".format(start = start_time, end = end_time)), kpi_card_body)
+
+    # generating AI summary
     text_fig = draw_Text(query_condition_description(api_key, [best_bucket['temperature_2m'].to_list()[0],
                                                             best_bucket['windspeed_10m'].to_list()[0],
-                                                            best_bucket['cloudcover'].to_list()[0]]))
+                                                            best_bucket['cloudcover'].to_list()[0]]),kpi_card_body)
+    
+    return text_fig, best_forecast
 
-    return kpi_fig, text_fig
+    
 
 # callback for kpi time
 @callback(
@@ -284,7 +318,7 @@ def update_kpi(hoverData):
         am_pm = convert_to_am_pm(hours)
 
         date = time_selected[5:10]
-    return 'Forecast {time}'.format(time = str(date) + ", " + am_pm)
+    return draw_Text('Forecast {time}'.format(time = str(date) + ", " + am_pm), kpi_card_title)
     
     
 
