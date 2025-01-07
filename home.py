@@ -87,7 +87,16 @@ layout = html.Div([
                                 dbc.Button('7-day-forecast', color = 'primary', id='forecast-click1',className="btn active", n_clicks=0),
                                 dbc.Button('1-day-forecast', color = 'primary', id='forecast-click2',className="me-1", n_clicks=0),
                                 ]),
+                            html.Div(children= [
+                            html.P('Choose the type of forecast', className = 'text'),
+                            html.Div([
+                                dbc.Button('Overall Forecast', color = 'primary', id='overall-click',className="btn active", n_clicks=0),
+                                dbc.Button('temp',  color = 'primary', id='temp-click',className="me-1", n_clicks=0),
+                                dbc.Button('wind',  color = 'primary', id='wind-click',className="me-1", n_clicks=0),
+                                dbc.Button('cloud',  color = 'primary', id='cloud-click',className="me-1", n_clicks=0)
+                            ])
 
+                            ])
                         ], style = {"display":"inline-block"}),
 
                     ])
@@ -134,14 +143,17 @@ layout = html.Div([
     Output(component_id='test-forecast-out', component_property='figure'),
     Input('forecast-click1', 'n_clicks'),
     Input('forecast-click2', 'n_clicks'),
-
+    Input('temp-click', 'n_clicks'),
+    Input('wind-click', 'n_clicks'),
+    Input('cloud-click', 'n_clicks'),
+    Input('overall-click', 'n_clicks'),
     Input("measurement-switch", 'value'),
     Input('stored-forecast', 'data'),
     Input('location-storage', 'data')
 
 
 )
-def update_timeseries(button1, button2,  switch, df1, location):
+def update_timeseries(button1, button2, button3, button4, button5, button6, switch, df1, location):
 
     filtered_df = pd.read_json(df1, orient='split')
     filtered_df ['time'] = pd.to_datetime(filtered_df['time'])
@@ -172,9 +184,9 @@ def update_timeseries(button1, button2,  switch, df1, location):
     # If none of the above then show all data
     else:
         if 'Metric' in switch:
-            forecast_type = ['Forecast_Score', 'windspeed_10m', 'cloudcover', 'temperature_2m', 'precipitation_probability']
+            forecast_type = ['Forecast_Score', 'windspeed_10m', 'cloudcover', 'temperature_2m']
         else:
-            forecast_type = ['Forecast_Score', 'windspeed_MPH', 'cloudcover', 'temperature_F', 'precipitation_probability']
+            forecast_type = ['Forecast_Score', 'windspeed_MPH', 'cloudcover', 'temperature_F']
 
     # Creating graph figure
     # Need to input latitude/longitude from store
@@ -276,8 +288,7 @@ def update_ai_summary(df1):
     end_time = start_time + timedelta(hours=1)
 
     # Generating best forecast in next 12 hours
-    best_forecast = draw_Text(html.H4("Best Running Time Today: {start} to {end}.".format(start = convert_to_am_pm(start_time.strftime("%H")), 
-                                                                                          end = convert_to_am_pm(end_time.strftime("%H")))), kpi_card_body)
+    best_forecast = draw_Text(html.P("Best Running Time Today: {start} to {end}.".format(start = start_time, end = end_time)), kpi_card_body)
 
     # generating AI summary
     text_fig = draw_Text(query_condition_description(api_key, [best_bucket['temperature_2m'].to_list()[0],
@@ -306,7 +317,7 @@ def update_kpi(hoverData):
         am_pm = convert_to_am_pm(hours)
 
         date = time_selected[5:10]
-    return draw_Text(html.H4('Forecast {time}'.format(time = str(date) + ", " + am_pm)), kpi_card_title)
+    return draw_Text('Forecast {time}'.format(time = str(date) + ", " + am_pm), kpi_card_title)
     
     
 
@@ -326,4 +337,28 @@ def set_active_forecast_window(*args):
     return [
         "btn active" if button_id == "forecast-click1" else "btn",
         "btn active" if button_id == "forecast-click2" else "btn" 
+    ]
+
+@callback(
+    [Output("overall-click", "className"), 
+     Output("temp-click", "className"),
+     Output("wind-click", "className"),
+     Output("cloud-click", "className")],
+    [Input("overall-click", "n_clicks"),
+     Input("temp-click", "n_clicks"),
+     Input("wind-click", "n_clicks"),
+     Input("cloud-click", "n_clicks")] ,
+)
+def set_active_forecast_type(*args):
+    ctx = dash.callback_context
+    if not ctx.triggered or not any(args):
+       return ["btn"] + ["btn active"] + ["btn" for _ in range(1, 2)] 
+
+    # get id of triggering button
+    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    return [
+        "btn active" if button_id == "overall-click" else "btn",
+        "btn active" if button_id == "temp-click" else "btn", 
+        "btn active" if button_id == "wind-click" else "btn",
+        "btn active" if button_id == "cloud-click" else "btn"
     ]

@@ -6,6 +6,7 @@ import pandas as pd
 from dash import Dash, dcc, html, callback,Input, Output,dash_table
 import dash_bootstrap_components as dbc
 import plotly.express as px
+from plotly.subplots import make_subplots
 
 
 graph_card_style = {
@@ -129,22 +130,64 @@ def draw_Text_With_Background(input_val, ideal_val, trailer, input_img, box_heig
     ],color = display_color, style = {"height": box_height}
 )])
 
+
 def generate_timeseries_plot(df, x:str, y:list, s1: list, s2: list):
 
     color_mapping = {'Forecast_Score': dict(color='royalblue', width=5),
-                     'windspeed_10m': dict(color='#ff7f0e', width=3, dash='dash'),
-                     'windspeed_MPH': dict(color='#ff7f0e', width=3, dash='dash'),
-                     'cloudcover': dict(color='#1f77b4', width=3, dash='dash'),
-                     'temperature_2m': dict(color='firebrick', width=3, dash='dash'),
-                     'temperature_F': dict(color='firebrick', width=3, dash='dash')
+                     'windspeed_10m': dict(color='#ff7f0e', width=3, ),
+                     'windspeed_MPH': dict(color='#ff7f0e', width=3, ),
+                     'cloudcover': dict(color='#1f77b4', width=3, ),
+                     'temperature_2m': dict(color='firebrick', width=3, ),
+                     'temperature_F': dict(color='firebrick', width=3, ),
+                     'precipitation_probability': dict(color='MediumSeaGreen', width=3, )
     }
 
-    time_fig = fig = go.Figure()
-    # Generating figure
-    for i in y:
-        time_fig.add_trace(go.Scatter(x=df['time'], y=df[i],
-                            name = i,
-                            line = color_mapping[i]))
+    #time_fig = fig = go.Figure()
+    combined_fig = make_subplots(rows=3, cols=1,
+                    shared_xaxes=True,
+                    vertical_spacing=0.02)
+    
+    # Creating list of variables to graph
+    forecast_type = ['Forecast_Score', 'windspeed_10m', 'cloudcover', 'temperature_2m', 'precipitation_probability']
+    combined_fig.add_trace(go.Scatter(x=df['time'], y=df['Forecast_Score'],
+                                      name = 'Forecast_Score',
+                                      line = color_mapping['Forecast_Score']),
+              row=1, col=1)
+    # If imperial
+    if y != forecast_type:
+        forecast_type = ['Forecast_Score', 'windspeed_MPH', 'cloudcover', 'temperature_F', 'precipitation_probability']
+         # Adding traces
+        combined_fig.add_trace(go.Scatter(x=df['time'], y=df['windspeed_MPH'],
+                                          name = 'windspeed_MPH',
+                                          line = color_mapping['windspeed_MPH']),
+              row=2, col=1)
+        
+        combined_fig.add_trace(go.Scatter(x=df['time'], y=df['temperature_F'],
+                                          name = 'temperature_F',
+                                          line = color_mapping['temperature_F']),
+              row=2, col=1)
+    # if metric
+    else:
+        combined_fig.add_trace(go.Scatter(x=df['time'], y=df['windspeed_10m'],
+                                          name = 'windspeed_10m',
+                                          line = color_mapping['windspeed_10m']),
+              row=2, col=1)
+        
+        combined_fig.add_trace(go.Scatter(x=df['time'], y=df['temperature_2m'],
+                                          name = 'temperature_2m',
+                                          line = color_mapping['temperature_2m']),
+              row=2, col=1)
+
+    # Percentage traces
+    combined_fig.add_trace(go.Scatter(x=df['time'], y=df['cloudcover'],
+                                      name = 'cloudcover',
+                                      line = color_mapping['cloudcover']),
+              row=3, col=1)
+        
+    combined_fig.add_trace(go.Scatter(x=df['time'], y=df['precipitation_probability'],
+                                      name = 'precipitation_probability',
+                                      line = color_mapping['precipitation_probability']),
+              row=3, col=1)
 
     i = 0
     # Finding min/max times from forecast series to align with day/night series
@@ -161,36 +204,39 @@ def generate_timeseries_plot(df, x:str, y:list, s1: list, s2: list):
         # If both night start/end are within our forecast series
         if (start > min_time) and (end < max_time):
             # add shaded region
-            time_fig.add_vrect(
+            combined_fig.add_vrect(
                 x0=start,
                 x1=end,
                 fillcolor="black",
+                layer="below",
                 opacity=0.5,
                 line_width=1
             )
 
         # If its a left edgecase
         elif (start <= min_time):
-            time_fig.add_vrect(
+            combined_fig.add_vrect(
                 x0=min_time,
                 x1=end,
                 fillcolor="black",
+                layer="below",
                 opacity=0.5,
                 line_width=1
             )
         
         # If its a right edgecase
         elif (end >= max_time):
-            time_fig.add_vrect(
+            combined_fig.add_vrect(
                 x0=start,
                 x1=max_time,
                 fillcolor="black",
+                layer="below",
                 opacity=0.5,
                 line_width=1,
             )
         
         i += 1
-    time_fig.update_layout(xaxis=dict(
+    combined_fig.update_layout(xaxis=dict(
         range=[min_time, max_time],  # Set the range of the x-axis
         side='bottom'  # Set the position of the x-axis to the bottom
         ))
@@ -212,9 +258,21 @@ def generate_timeseries_plot(df, x:str, y:list, s1: list, s2: list):
 
 
     # Updating layout
-    time_fig.update_layout(yaxis_title=y_axis_label,
-                           title = y_axis_label + " Forecast")
-    return time_fig
+    combined_fig.update_layout(title = "Weather Forecast")
+    
+    # Update x-axis title of the first subplot
+    combined_fig.update_yaxes(title_text="Overall", row=1, col=1)
+    combined_fig.update_yaxes(title_text="Temperature", row=2, col=1)
+    #combined_fig.update_yaxes(title_text="Wind Speed")
+    combined_fig.update_yaxes(title_text="% Chance", row=3, col=1)
+
+    # Updating background color
+    combined_fig.update_layout(
+        paper_bgcolor='lightgray',  # Background color of the entire figure
+        plot_bgcolor='white',  # Background color of the plotting area
+        height = 800
+    )
+    return combined_fig
 
 
 
