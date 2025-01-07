@@ -275,9 +275,16 @@ def update_ai_summary(df1):
     start_time = best_bucket['time'].to_list()[0]
     end_time = start_time + timedelta(hours=1)
 
-    # Generating best forecast in next 12 hours
-    best_forecast = draw_Text(html.H4("Best Running Time Today: {start} to {end}.".format(start = convert_to_am_pm(start_time.strftime("%H")), 
-                                                                                          end = convert_to_am_pm(end_time.strftime("%H")))), kpi_card_body)
+    # Displaying best running time
+    best_forecast = draw_Text([ 
+                html.Div([
+                    html.H4("Best Running Time: ",style = {'display': 'inline' }),
+                    html.H4("{start} - {end}.".format(start = convert_to_am_pm(start_time.strftime("%H")), 
+                                                        end = convert_to_am_pm(end_time.strftime("%H"))), style={"color": "green", 'display': 'inline' }
+                                ),
+            ])
+        ],style = kpi_card_body)
+        
 
     # generating AI summary
     text_fig = draw_Text(query_condition_description(api_key, [best_bucket['temperature_2m'].to_list()[0],
@@ -306,7 +313,11 @@ def update_kpi(hoverData):
         am_pm = convert_to_am_pm(hours)
 
         date = time_selected[5:10]
-    return draw_Text(html.H4('Forecast {time}'.format(time = str(date) + ", " + am_pm)), kpi_card_title)
+    return draw_Text(html.Div([
+            html.H4('Forecast: ', style={ 'display': 'inline'}),
+            html.H4(str(date) + ", " + am_pm, style={"color": "green", 'display': 'inline'})
+        ]), kpi_card_title)
+        
     
     
 
