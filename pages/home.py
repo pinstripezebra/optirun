@@ -270,7 +270,7 @@ def update_ai_summary(df1):
     filtered_df ['time'] = pd.to_datetime(filtered_df['time'])
 
     # Filtering for next 12 hours
-    next_12_hours = filtered_df.head(12)
+    next_12_hours = filtered_df.head(24)
     best_bucket = next_12_hours[next_12_hours['Forecast_Score'] == next_12_hours['Forecast_Score'].max()]
     start_time = best_bucket['time'].to_list()[0]
     end_time = start_time + timedelta(hours=1)

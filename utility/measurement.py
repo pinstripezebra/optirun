@@ -65,6 +65,8 @@ def find_optimal_window(optimal_conditions, forecasted_conditions, max_window):
     min_val = min(ranking)
     max_val = max(ranking)
     normalized_score = [1 + 9 * (x - min_val) / (max_val - min_val) for x in ranking]
+    # inverting score so 10 is best
+    normalized_Score = [10] * len(normalized_score) - normalized_score
     score_df = pd.DataFrame({'Indice': ranking_indice,
                              'Score': normalized_score})
     return score_df
