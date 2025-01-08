@@ -27,7 +27,9 @@ layout = html.Div([
                     ),
                     html.H3('Optirun', style={'display': 'inline' }),
                 # Login
-                html.Div([dcc.Location(id='url_login', refresh=True),
+                html.Div([
+                    
+                        dcc.Location(id='url_login', refresh=True),
                         html.H1('Welcome'),
                         html.H4('''Please log in to continue:'''),
                         dcc.Input(placeholder='Enter your username',

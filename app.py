@@ -13,6 +13,7 @@ import dash_auth
 import flask
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
 from utility.measurement import find_optimal_window
+import time
 
 
 # loading environmental variables
@@ -72,8 +73,12 @@ def load_user(username):
 
 
 # login using login.py
-login = register = logout =  html.Div([
-                dash.page_container
+login = register = logout =  html.Div([dcc.Loading(
+                id = 'Loading-1',
+                type="default",
+                delay_hide = 1000,
+                children = dash.page_container
+)           
         ])
 
 # Failed Login
@@ -91,13 +96,14 @@ error404 = html.Div([html.Div(html.H2('Error 404 - page not found')),
                    ])  
 
 app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
-    dcc.Location(id='redirect', refresh=True),
-    dcc.Store(id='login-status', storage_type='local'),
-    dcc.Store(id='stored-forecast', storage_type='local'), # for storing weather forecast in dataframe
-    dcc.Store(id='optimal-conditions', storage_type='local'), # for storing optimal conditions in dictionary
-    dcc.Store(id='location-storage', storage_type='local'), # for storing latitude/longitude in dictionary
-    html.Div(id='page-content'),
+        dcc.Location(id='url', refresh=False),
+        dcc.Location(id='redirect', refresh=True),
+        dcc.Store(id='login-status', storage_type='local'),
+        dcc.Store(id='stored-forecast', storage_type='local'), # for storing weather forecast in dataframe
+        dcc.Store(id='optimal-conditions', storage_type='local'), # for storing optimal conditions in dictionary
+        dcc.Store(id='location-storage', storage_type='local'), # for storing latitude/longitude in dictionary
+        html.Div(id='page-content'),
+
 ])
 
 sidebar = html.Div(children = [
