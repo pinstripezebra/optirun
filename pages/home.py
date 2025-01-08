@@ -208,6 +208,13 @@ def update_kpi(val1, val2, switch, hoverData, df1, optimalconditions):
     if hoverData is not None:
         time_selected = hoverData['points'][0]['x']
     
+    # else default to current time rounded to next hour
+    else:
+        time_selected = datetime.now()
+        time_selected = time_selected + timedelta(hours=1, minutes=-time_selected.minute, 
+                                                  seconds=-time_selected.second, 
+                                                  microseconds=-time_selected.microsecond)
+    
     temp, wind, cloud, prec = "", "", "", ""
     temp_trailer, wind_trailer = "", ""
     if 'Metric' in switch:
@@ -269,7 +276,7 @@ def update_ai_summary(df1):
     filtered_df = pd.read_json(df1, orient='split')
     filtered_df ['time'] = pd.to_datetime(filtered_df['time'])
 
-    # Filtering for next 12 hours
+    # Filtering for next 24 hours
     next_12_hours = filtered_df.head(24)
     best_bucket = next_12_hours[next_12_hours['Forecast_Score'] == next_12_hours['Forecast_Score'].max()]
     start_time = best_bucket['time'].to_list()[0]
@@ -304,6 +311,7 @@ def update_ai_summary(df1):
 def update_kpi(hoverData):
 
     date, am_pm = 0, 'pm'
+    
     # If hoverdata is not none use this for date/time
     if hoverData is not None:
         time_selected = hoverData['points'][0]['x']
@@ -311,8 +319,17 @@ def update_kpi(hoverData):
 
         # converting 00 - 24 to am_pm format
         am_pm = convert_to_am_pm(hours)
-
+        # selecting only day/month part of date
         date = time_selected[5:10]
+
+    # If no data selected will use current time rounded up to nearest hour
+    else:
+        dt = datetime.now()
+        dt = dt + timedelta(hours=1, minutes=-dt.minute, seconds=-dt.second, microseconds=-dt.microsecond)
+        hours = str(dt)[-8:][:2]
+        am_pm = convert_to_am_pm(hours)
+        date = str(dt)[5:10]
+
     return draw_Text(html.Div([
             html.H4('Forecast: ', style={ 'display': 'inline'}),
             html.H4(str(date) + ", " + am_pm, style={"color": "green", 'display': 'inline'})

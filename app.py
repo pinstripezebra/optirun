@@ -139,9 +139,8 @@ sidebar = html.Div(children = [
                 "This project uses machine learning to forecast running conditions and provides a personalized running reccommendation time based on user preferences.", className="text"
             ),
 
-            
             html.A(
-                href="https://github.com/pinstripezebra/Dash-Tutorial",
+                href="https://github.com/pinstripezebra/optirun",
                 children=[
                     html.Img(
                         alt="Link to Github",
