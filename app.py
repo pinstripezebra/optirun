@@ -12,15 +12,15 @@ from utility.data_query import data_pipeline, retrieve_users, retrieve_user_from
 import dash_auth
 import flask
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
-from utility.measurement import find_optimal_window
 import time
 
+# Importing utility functions
+from utility.measurement import find_optimal_window
+from utility.user import User
 
 # loading environmental variables
 dotenv_path = find_dotenv()
 load_dotenv(dotenv_path)
-repull_data = True
-
 
 # Loading json files containing component styles
 SIDEBAR_STYLE , CONTENT_STYLE, LOGIN_STYLE = {}, {}, {}
@@ -36,24 +36,13 @@ with open('style/login_style.json') as f:
 server = flask.Flask(__name__)
 app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.FLATLY], assets_folder='assets', assets_url_path='/assets/', server = server)
 
-# Updating the Flask Server configuration with Secret Key to encrypt the user session cookie
+# updating the Flask Server configuration with Secret Key to encrypt the user session cookie
 server.config.update(SECRET_KEY=os.getenv('SECRET_KEY'))
 
-# Login manager object will be used to login / logout users
+# login manager object will be used to login / logout users
 login_manager = LoginManager()
 login_manager.init_app(server)
 login_manager.login_view = '/login'
-
-
-# User data model
-class User(UserMixin):
-    def __init__(self, username, password, latitude, longitude, optimal_conditions):
-        self.id = username
-        self.password = password
-        self.latitude = latitude
-        self.longitude = longitude
-        self.optimal_conditions = optimal_conditions
-
 
 @ login_manager.user_loader
 def load_user(username):
@@ -71,14 +60,13 @@ def load_user(username):
     
     return User(username,password, latitude, longitude, optimal_conditions)
 
-
 # login using login.py
 login = register = logout =  html.Div([dcc.Loading(
                 id = 'Loading-1',
                 type="default",
                 delay_hide = 1000,
                 children = dash.page_container
-)           
+            )           
         ])
 
 # Failed Login
@@ -190,6 +178,7 @@ def login_button_click(n_clicks, username, password):
             login_user(user)
 
             # Logging forecast to store for consumption in other pages
+            repull_data = True
             df1 = data_pipeline(repull_data, user.latitude, user.longitude)
             df1['time'] = df1.index
             df1.reset_index(drop = True)
