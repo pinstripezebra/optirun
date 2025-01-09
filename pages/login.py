@@ -67,7 +67,7 @@ layout = html.Div([
                                 html.Div(
                                     [
                                         dbc.Button(
-                                            "What is Runcast?",
+                                            "What is Optirun?",
                                             id="collapse-button1",
                                             className="mb-3",
                                             color="primary",
@@ -75,7 +75,7 @@ layout = html.Div([
                                             style = {'width': '250px', 'text-align': 'left'}
                                         ),
                                         dbc.Collapse(
-                                            dbc.Card(dbc.CardBody("""Runcast forecasts running conditions over the next next 24 hours to 1 week, utilizing user preferences
+                                            dbc.Card(dbc.CardBody("""Optirun forecasts running conditions over the next next 24 hours to 1 week, utilizing user preferences
                                                                 and open source weather forecasts to help you identify the best running windows.""")),
                                             id="collapse1",
                                             is_open=False,
@@ -90,7 +90,7 @@ layout = html.Div([
                                             style={'width': '250px', 'text-align': 'left'}
                                         ),
                                         dbc.Collapse(
-                                            dbc.Card(dbc.CardBody("""Runcast relies on user provided data, location and weather conditions, combined with open source 
+                                            dbc.Card(dbc.CardBody("""Optirun relies on user provided data, location and weather conditions, combined with open source 
                                                                 weather forecasts from Open-Meteo to generate cusomizable running forecasts.""")),
                                             id="collapse2",
                                             is_open=False,
