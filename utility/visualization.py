@@ -266,6 +266,12 @@ def generate_timeseries_plot(df, x:str, y:list, s1: list, s2: list):
     #combined_fig.update_yaxes(title_text="Wind Speed")
     combined_fig.update_yaxes(title_text="% Chance", row=3, col=1)
 
+    # Remove x-axis gridlines
+    combined_fig.update_xaxes(showgrid=False)
+
+    # Remove y-axis gridlines
+    combined_fig.update_yaxes(showgrid=False)
+
     # Updating background color
     combined_fig.update_layout(
         paper_bgcolor='lightgray',  # Background color of the entire figure

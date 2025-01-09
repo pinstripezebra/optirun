@@ -65,7 +65,7 @@ header = html.Div([
         ],style={'display': 'inline' ,
                  'margin-left': '600px'}),
     ], style = {"background-color": "#DCDCDC",
-                "width": "80%",
+                "width": "85%",
                 "display": "flex",
                 "margin-left": "18rem",
                 'opacity': '80%',
