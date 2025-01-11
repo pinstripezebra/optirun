@@ -61,12 +61,8 @@ def load_user(username):
     return User(username,password, latitude, longitude, optimal_conditions)
 
 # login using login.py
-login = register = logout =  html.Div([dcc.Loading(
-                id = 'Loading-1',
-                type="default",
-                delay_hide = 1000,
-                children = dash.page_container
-            )           
+login = register = logout =  html.Div([
+                dash.page_container         
         ])
 
 # Failed Login
