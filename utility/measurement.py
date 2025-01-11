@@ -4,6 +4,9 @@ from suntime import Sun, SunTimeException
 from datetime import datetime, timedelta, timezone
 from dotenv import find_dotenv, load_dotenv
 import os
+from astral import LocationInfo
+from astral.sun import sun
+from datetime import date
 
 
 
@@ -27,11 +30,37 @@ def measure_running_conditions(optimal_values, forecasted_values):
     score = sum([(abs(float(i) - float(j))/i)*10 for i, j in zip(optimal_values, forecasted_values)])/len(optimal_values)
     return score
 
+def assess_day_night(initial_list:list, latitude:float, longitude:float, darkness_scalar:int):
 
-def find_optimal_window(optimal_conditions, forecasted_conditions, max_window):
+    '''takes an initial list representing hourly measurements indexed at midnight and returns 
+    a list of 1/0 of the same length representing if that hourly window is dark or light'''
 
-    '''takes forecasts of temperature and returns tuples cotnaining the optimal indices to go on a run
-    ranked from best to worst
+    # Create a LocationInfo object
+    today = date.today()
+    city = LocationInfo( latitude, longitude)
+
+    # Get sunrise and sunset for a specific date
+    s = sun(city.observer, date=today)
+    sunrise = int(s["sunrise"].strftime("%H"))
+    sunset = int(s["sunset"].strftime("%H"))
+
+    # creating list where 1 = dark and 0 = light
+    daylight = []
+    for i in range(len(initial_list)):
+        # if its nighttime
+        if i%24 < sunrise or i%24 > sunset:
+            daylight.append(1)
+        else:
+            daylight.append(0)
+    return daylight*darkness_scalar
+
+    
+
+
+
+def find_optimal_window(optimal_conditions, forecasted_conditions, latitude, longitude):
+
+    '''takes forecasts of temperature and returns dataframe containing running score
 
     INPUT:
         optimal_conditions: dict
@@ -49,6 +78,7 @@ def find_optimal_window(optimal_conditions, forecasted_conditions, max_window):
     ranking_indice, ranking = [],[]
     
     factor_keys = list(optimal_conditions.keys())
+    factor_keys.remove('daylight_required')
     optimal_values = [optimal_conditions[i] for i in factor_keys]
     # Iterating through all indices and evaluating score
     for indice in range(len(forecasted_conditions[factor_keys[0]])):
@@ -65,10 +95,16 @@ def find_optimal_window(optimal_conditions, forecasted_conditions, max_window):
     min_val = min(ranking)
     max_val = max(ranking)
     normalized_score = [1 + 9 * (x - min_val) / (max_val - min_val) for x in ranking]
-    
+
     # inverting score so 10 is best
     baseline = [10] * len(normalized_score) 
     normalized_score = [b_score - n_score for b_score, n_score in zip(baseline, normalized_score)]
+
+    # calculating daylight score and adding to overall score
+    daylight = assess_day_night(normalized_score, latitude, longitude,3)
+    normalized_score = [b_score - n_score for b_score, n_score in zip(normalized_score, daylight)]
+
+    # putting results into dataframe and returning
     score_df = pd.DataFrame({'Indice': ranking_indice,
                              'Score': normalized_score})
     return score_df

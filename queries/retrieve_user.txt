@@ -7,5 +7,6 @@ SELECT username
       ,rain
       ,cloud
       ,wind
+      ,daylight_required
   FROM users
   WHERE username = {username}

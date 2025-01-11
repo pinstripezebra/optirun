@@ -56,7 +56,9 @@ def load_user(username):
     password = user_df['password'].to_list()[0]
     optimal_conditions = {'temperature_2m': float(user_df['temperature'].to_list()[0]),
                           'cloudcover': float(user_df['cloud'].to_list()[0]),
-                          'windspeed_10m': float(user_df['rain'].to_list()[0])}
+                          'windspeed_10m': float(user_df['wind'].to_list()[0]),
+                          'precipitation_probability': float(user_df['rain'].to_list()[0]),
+                          'daylight_required': int(user_df['daylight_required'].to_list()[0])}
     
     return User(username,password, latitude, longitude, optimal_conditions)
 
@@ -166,7 +168,8 @@ def login_button_click(n_clicks, username, password):
             optimal_conditions = {'temperature_2m': float(user_df['temperature'].to_list()[0]),
                                   'cloudcover': float(user_df['cloud'].to_list()[0]),
                                   'windspeed_10m': float(user_df['wind'].to_list()[0]),
-                                  'precipitation_probability': float(user_df['rain'].to_list()[0])}
+                                  'precipitation_probability': float(user_df['rain'].to_list()[0]),
+                                  'daylight_required': int(user_df['daylight_required'].to_list()[0])}
 
 
             # logging user in
@@ -185,8 +188,7 @@ def login_button_click(n_clicks, username, password):
                                       'precipitation_probability': df1['precipitation_probability'].to_list()}
 
             # Rating weather conditions and adding overall score to dataframe
-            max_window = len(df1['temperature_2m'].to_list())
-            conditions = find_optimal_window(optimal_conditions, forecasted_conditions, max_window)
+            conditions = find_optimal_window(optimal_conditions, forecasted_conditions, latitude, longitude)
             df1['Forecast_Score'] = conditions['Score'].to_list()
             location = {'latitude': user.latitude,
                         'longitude': user.longitude}
