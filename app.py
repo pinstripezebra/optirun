@@ -92,6 +92,58 @@ app.layout = html.Div([
 
 ])
 
+# defining popup modal for adjusting user preferences
+preference_modal = html.Div(
+    [
+        dbc.Button("Change Preferences", id="open", n_clicks=0),
+        dbc.Modal(
+            [
+                dbc.ModalHeader(dbc.ModalTitle("User Preferences")),
+                html.Div([html.H5('Input your ideal running conditions:'),
+                    html.P('Temperature'),
+                    dcc.Slider(40, 100, value=65,
+                            marks={
+                                40: {'label': '40°F', 'style': {'color': '#77b0b1'}},
+                                60: {'label': '60°F'},
+                                80: {'label': '80°F'},
+                                100: {'label': '100°F', 'style': {'color': '#f50'}}
+                            },
+                            included=False,
+                            id = 'temp-slider-change'
+                    ),
+                    html.P('Precipitation'),
+                    dcc.Slider(0, 100, value=0.1,
+                            marks={
+                                0.1: {'label': 'No Rain',},
+                                50: {'label': 'Moderate Rain'},
+                                100: {'label': 'Heavy Rain'}
+                            },
+                            included=False,
+                            id = 'rain--change'
+                    ),
+                    html.P('Cloud Cover'),
+                    dcc.Slider(0, 100, value=0.1,
+                            marks={
+                                0.1: {'label': 'No Clouds',},
+                                50: {'label': 'Moderate Clouds'},
+                                100: {'label': 'Heavy Clouds'}
+                            },
+                            included=False,
+                            id = 'cloud-slider-change'
+                    ),]),
+                dbc.ModalFooter(
+                    dbc.Button(
+                        "Save", id="close", className="ms-auto", n_clicks=0
+                    )
+                ),
+            ],
+            id="modal",
+            size="sm",
+            is_open=False,
+        ),
+    ]
+)
+
 sidebar = html.Div(children = [
             html.Img(
                         alt="Link to Github",
@@ -107,6 +159,7 @@ sidebar = html.Div(children = [
             html.Div([
                 dcc.Link('Logout', href='/logout'),
             ]),
+            preference_modal,
             html.H3("Pages"),
             html.Hr(),
             html.Div([   
@@ -138,6 +191,8 @@ sidebar = html.Div(children = [
             ),
         ], style=SIDEBAR_STYLE
     )
+
+
 home_page = html.Div([
         sidebar,
         html.Div([
@@ -261,6 +316,18 @@ def login_status(url):
         return html.H4("Welcome, {id}".format(id = current_user.id),style = {'display':'inline'})
     else:
         return html.Div([""])
+    
+# modal callback to allow user to adjust weather preferences + repull data
+@app.callback(
+    Output("modal", "is_open"),
+    [Input("open", "n_clicks"), Input("close", "n_clicks")],
+    [State("modal", "is_open")],
+)
+def toggle_modal(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
 
 
 # Running the app
