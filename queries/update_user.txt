@@ -1,0 +1,9 @@
+UPDATE users
+SET    password = {password1}
+      ,temperature = {temperature1}
+      ,rain = {rain1}
+      ,cloud = {cloud1}
+      ,wind = {wind1}
+      ,daylight_required = {password1}
+WHERE username = {username}
+RETURNING *;

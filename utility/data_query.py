@@ -151,27 +151,42 @@ def validate_registration(name: str, password: str, latitude: str, longitude: st
         error = "no error"
     return error
 
-def insert_user(name: str, password: str, latitude: str, longitude: str, temp:float, rain:float, cloud:float, wind:float):
+def insert_user(name: str, password: str, latitude: str, longitude: str, temp:float, rain:float, cloud:float, wind:float,daylight_required:int, update:bool):
     """
     Registers user to database
+    if update: False than inserts new user, else updates existing user
     """
     # retrieving query
     dotenv_path = find_dotenv()
     load_dotenv(dotenv_path)
-    filename = 'queries/add_user.txt'
 
-    # Passing input parameters
-    insertion = read_file_into_string(filename)
-    insertion = insertion.format(username1 = "'" + name + "'" ,
-                                    password1 = "'" + password + "'" ,
-                                    latitude1 = "'" + latitude + "'" ,
-                                    longitude1 = "'" + longitude + "'",
-                                    temperature1 = "'" + str(round(temp,2)) + "'",
-                                    rain1 = "'" + str(round(rain,2)) + "'",
-                                    cloud1 = "'" + str(round(cloud,2)) + "'",
-                                    wind1 = "'" + str(round(wind,2)) + "'",
-                                    admin_status1 = 0)
-    print(insertion)
+    action = ""
+    # if we want to insert a new user
+    if update == False:
+        filename = 'queries/add_user.txt'
+        action= read_file_into_string(filename)
+        action = action.format(username1 = "'" + name + "'" ,
+                                        password1 = "'" + password + "'" ,
+                                        latitude1 = "'" + latitude + "'" ,
+                                        longitude1 = "'" + longitude + "'",
+                                        temperature1 = "'" + str(round(temp,2)) + "'",
+                                        rain1 = "'" + str(round(rain,2)) + "'",
+                                        cloud1 = "'" + str(round(cloud,2)) + "'",
+                                        wind1 = "'" + str(round(wind,2)) + "'",
+                                        daylight_required1 = "'" + str(round(daylight_required,2)) + "'",
+                                        admin_status1 = 0)
+        
+    # if we want to update an existing user
+    else:
+        filename = 'queries/update_user.txt'
+        action= read_file_into_string(filename)
+        action = action.format(username1 = "'" + name + "'" ,
+                                temperature1 = "'" + str(round(temp,2)) + "'",
+                                rain1 = "'" + str(round(rain,2)) + "'",
+                                cloud1 = "'" + str(round(cloud,2)) + "'",
+                                wind1 = "'" + str(round(wind,2)) + "'",)
+
+    
     # retrieiving server + database information
     server = os.getenv("SERVER")
     db= os.getenv("DB_NAME")
@@ -181,7 +196,7 @@ def insert_user(name: str, password: str, latitude: str, longitude: str, temp:fl
         
     # defining cursor and executing insertion
     cursor = conn.cursor()
-    cursor.execute(insertion)
+    cursor.execute(action)
     conn.commit()
 
 

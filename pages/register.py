@@ -158,7 +158,8 @@ def register_user_to_database(n_clicks, username, email, password1, password2, p
                 registration_error = validate_registration(username, password1, latitude, longitude)
                 print(registration_error)
                 if registration_error == "no error":
-                    insert_user(username, password1, str(latitude), str(longitude), temp, rain, cloud, wind)
+                    daylight_required = 1
+                    insert_user(username, password1, str(latitude), str(longitude), temp, rain, cloud, wind,daylight_required, False)
                     return html.Div([html.P(registration_error)]), html.Div([html.H3('Successfully Registered!')]), green_button_style
 
         
