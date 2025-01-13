@@ -329,7 +329,7 @@ def login_status(url):
     prevent_initial_call=True
     
 )
-def toggle_modal(n1, n2, is_open, username):
+def toggle_modal(n1, n2, username, is_open):
 
     button_id = ctx.triggered[0]['prop_id']
     #if the user updated settings need to update in database
@@ -339,17 +339,18 @@ def toggle_modal(n1, n2, is_open, username):
         user_df = retrieve_user_from_db(username)
         daylight_required = 1
         update = True
-        '''
-        insert_user(user_df['username'], 
-                    user_df['password'], 
-                    str(user_df['latitude']), 
-                    str(user_df['longitude']), 
-                    user_df['temperature'], 
-                    user_df['cloudcover'], 
-                    user_df['precipitation_probability'], 
-                    wind,
-                    daylight_required, 
-                    update)'''
+        
+        # updating database
+        insert_user(user_df['username'].to_list()[0], 
+                    user_df['password'].to_list()[0], 
+                    str(user_df['latitude'].to_list()[0]), 
+                    str(user_df['longitude'].to_list()[0]), 
+                    float(user_df['temperature'].to_list()[0]), 
+                    float(user_df['cloud'].to_list()[0]), 
+                    float(user_df['rain'].to_list()[0]), 
+                    float(user_df['wind'].to_list()[0]),
+                    int(daylight_required), 
+                    update)
     if button_id == 'open.n_clicks':
         return True
     return False

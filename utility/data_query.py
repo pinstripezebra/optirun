@@ -184,7 +184,8 @@ def insert_user(name: str, password: str, latitude: str, longitude: str, temp:fl
                                 temperature1 = "'" + str(round(temp,2)) + "'",
                                 rain1 = "'" + str(round(rain,2)) + "'",
                                 cloud1 = "'" + str(round(cloud,2)) + "'",
-                                wind1 = "'" + str(round(wind,2)) + "'",)
+                                wind1 = "'" + str(round(wind,2)) + "'",
+                                daylight_required1 = "'" + str(round(daylight_required,2)) + "'")
 
     
     # retrieiving server + database information
