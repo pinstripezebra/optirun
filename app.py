@@ -8,7 +8,7 @@ import os
 import numpy as np
 from dotenv import find_dotenv, load_dotenv
 import json
-from utility.data_query import data_pipeline, retrieve_users, retrieve_user_from_db
+from utility.data_query import data_pipeline, retrieve_users, retrieve_user_from_db, insert_user
 import dash_auth
 import flask
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
@@ -88,6 +88,7 @@ app.layout = html.Div([
         dcc.Store(id='stored-forecast', storage_type='local'), # for storing weather forecast in dataframe
         dcc.Store(id='optimal-conditions', storage_type='local'), # for storing optimal conditions in dictionary
         dcc.Store(id='location-storage', storage_type='local'), # for storing latitude/longitude in dictionary
+        dcc.Store(id='username', storage_type='local'), # stores username
         html.Div(id='page-content'),
 
 ])
@@ -207,7 +208,8 @@ home_page = html.Div([
      Output('output-state', 'children'), 
      Output('stored-forecast', 'data'),
      Output('optimal-conditions', 'data'),
-     Output('location-storage', 'data')], 
+     Output('location-storage', 'data'),
+     Output('username', 'data')],
     [Input('login-button', 'n_clicks')], [State('uname-box', 'value'), State('pwd-box', 'value')])
 def login_button_click(n_clicks, username, password):
     if n_clicks > 0:
@@ -249,9 +251,9 @@ def login_button_click(n_clicks, username, password):
                         'longitude': user.longitude}
             
             # navigate to landing page if logged in successfully 
-            return '/landing', '', df1.to_json(date_format='iso', orient='split'), optimal_conditions, location
+            return '/landing', '', df1.to_json(date_format='iso', orient='split'), optimal_conditions, location, username
         else:
-            return '/login', 'Incorrect username or password', 'incorrect username', '', ''
+            return '/login', 'Incorrect username or password', 'incorrect username', '', '', ''
 
     return dash.no_update, dash.no_update, '', '' # Return a placeholder to indicate no update
 
@@ -320,13 +322,37 @@ def login_status(url):
 # modal callback to allow user to adjust weather preferences + repull data
 @app.callback(
     Output("modal", "is_open"),
-    [Input("open", "n_clicks"), Input("close", "n_clicks")],
+    [Input("open", "n_clicks"), 
+     Input("close", "n_clicks"), 
+     Input('username', 'data'),],
     [State("modal", "is_open")],
+    prevent_initial_call=True
+    
 )
-def toggle_modal(n1, n2, is_open):
-    if n1 or n2:
-        return not is_open
-    return is_open
+def toggle_modal(n1, n2, is_open, username):
+
+    button_id = ctx.triggered[0]['prop_id']
+    #if the user updated settings need to update in database
+    if button_id == 'close.n_clicks':
+
+        # retrieving user information
+        user_df = retrieve_user_from_db(username)
+        daylight_required = 1
+        update = True
+        '''
+        insert_user(user_df['username'], 
+                    user_df['password'], 
+                    str(user_df['latitude']), 
+                    str(user_df['longitude']), 
+                    user_df['temperature'], 
+                    user_df['cloudcover'], 
+                    user_df['precipitation_probability'], 
+                    wind,
+                    daylight_required, 
+                    update)'''
+    if button_id == 'open.n_clicks':
+        return True
+    return False
 
 
 

@@ -134,7 +134,6 @@ layout = html.Div([
     Output(component_id='test-forecast-out', component_property='figure'),
     Input('forecast-click1', 'n_clicks'),
     Input('forecast-click2', 'n_clicks'),
-
     Input("measurement-switch", 'value'),
     Input('stored-forecast', 'data'),
     Input('location-storage', 'data')
