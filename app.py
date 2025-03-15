@@ -96,7 +96,7 @@ app.layout = html.Div([
 # defining popup modal for adjusting user preferences
 preference_modal = html.Div(
     [
-        dbc.Button("Change Preferences", id="open", n_clicks=0),
+        dbc.Button("Change Preferences", id="open",color="primary",outline=True, n_clicks=0,style={'width': '75%'}),
         dbc.Modal(
             [
                 dbc.ModalHeader(dbc.ModalTitle("User Preferences")),
@@ -158,9 +158,10 @@ sidebar = html.Div(children = [
             ),
 
             html.Div([
-                dcc.Link('Logout', href='/logout'),
-            ]),
-            preference_modal,
+                dbc.Button("Logout", id="logout-button", color="primary", outline=True, href='/logout', style={'width': '75%'}),
+                html.Br(),
+                preference_modal,
+            ], style={'width': '100%'}),
             html.H3("Pages"),
             html.Hr(),
             html.Div([   
