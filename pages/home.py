@@ -64,6 +64,11 @@ header = html.Div([
             html.P('Metric',style={'display': 'inline' }),
         ],style={'display': 'inline' ,
                  'margin-left': '600px'}),
+        html.Div([
+            dbc.Button("Download Data", id="btn_csv", outline=True, color="primary"),
+            dcc.Download(id="download-dataframe-csv"),
+        ],style={'display': 'inline' ,
+                 'margin-left': '10px'})
     ], style = {"background-color": "#DCDCDC",
                 "width": "85%",
                 "display": "flex",
@@ -120,8 +125,7 @@ layout = html.Div([
                                 html.Div([], id = 'forecast-ai-figure')
                             ])
                         ]) ,
-
-                        
+ 
                     ])
             ]),
         ], style=CONTENT_STYLE)
@@ -137,8 +141,6 @@ layout = html.Div([
     Input("measurement-switch", 'value'),
     Input('stored-forecast', 'data'),
     Input('location-storage', 'data')
-
-
 )
 def update_timeseries(button1, button2,  switch, df1, location):
 
@@ -354,3 +356,15 @@ def set_active_forecast_window(*args):
         "btn active" if button_id == "forecast-click1" else "btn",
         "btn active" if button_id == "forecast-click2" else "btn" 
     ]
+
+
+# function to allow user to dowload data
+@callback(
+    Output("download-dataframe-csv", "data"),
+    Input("btn_csv", "n_clicks"),
+    Input('stored-forecast', 'data'),
+    prevent_initial_call=True,
+)
+def func(n_clicks, forecast):
+    df = pd.read_json(forecast, orient='split')
+    return dcc.send_data_frame(df.to_csv, "mydf.csv")
