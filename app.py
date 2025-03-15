@@ -165,10 +165,9 @@ sidebar = html.Div(children = [
             html.H3("Pages"),
             html.Hr(),
             html.Div([   
-                dbc.Nav([
-                    dbc.NavLink(f"{page['name']}", href = page["relative_path"]) for page in dash.page_registry.values() if page["relative_path"] != '/register' and page["relative_path"] != '/login' and page["relative_path"] != '/logout'
-                ], vertical=True)
-
+                dbc.Button("Home", id="logout-button", color="primary", outline=True, href='/landing', style={'width': '75%'}),
+                dbc.Button("Maps", id="logout-button", color="primary", outline=True, href='/map', style={'width': '75%'}),
+                dbc.Button("Analytics", id="logout-button", color="primary", outline=True, href='/analytic', style={'width': '75%'}),
             ]),
             html.H3("Description"),
             html.P(
