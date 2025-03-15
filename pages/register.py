@@ -5,6 +5,7 @@ import dash_bootstrap_components as dbc
 from dotenv import find_dotenv, load_dotenv
 import os
 import json
+from dash.exceptions import PreventUpdate
 from utility.data_query import insert_user, search_address, validate_registration, retrieve_user_from_db
 
 # registering page
@@ -99,7 +100,7 @@ layout = html.Div([
         ], className='text-center', style={"width": "25rem", 'background-color': 'rgba(245, 245, 245, 1)', 'opacity': '.8'}),
         width={"offset": 4},
     )
-], style=REGISTER_STYLE)
+], style=REGISTER_STYLE, id='registration_screen')
 
 
 # Callback to update appearance of location button if user has accepted tracking
@@ -136,12 +137,10 @@ def register_user_to_database(n_clicks, username, email, password1, password2, p
     # extracting latitude/longitude from address
     wind = 0.1
     registration_error = ""
-    print(position)
     # If button has been pressed
     if dash.callback_context.triggered_id == 'Register-button':
         # If all fields have been entered 
         if None not in [username, email, email, password1, password2, position]:
-            print([username, email, email, password1, password2, position])
             check_username = retrieve_user_from_db(username)
             latitude, longitude = position['lat'], position['lon']
 
@@ -155,15 +154,54 @@ def register_user_to_database(n_clicks, username, email, password1, password2, p
 
             # Checking that passwords match
             else:
+                print("validate_registration input",username, password1, latitude, longitude)
                 registration_error = validate_registration(username, password1, latitude, longitude)
-                print(registration_error)
+                print("validate_registration output", registration_error)
                 if registration_error == "no error":
                     daylight_required = 1
                     insert_user(username, password1, str(latitude), str(longitude), temp, rain, cloud, wind,daylight_required, False)
+                    #print('password_error: ', registration_error)
                     return html.Div([html.P(registration_error)]), html.Div([html.H3('Successfully Registered!')]), green_button_style
 
-        
-    if registration_error == "no error":
-        registration_error = ""
-    
-    return html.Div([html.P(registration_error)]),  html.Div([]), grey_button_style
+    return html.P(registration_error),  html.Div([]), grey_button_style
+
+
+# If registration is successfull need to return different screen view
+@callback(Output('registration_screen', 'children'), 
+          Input('password-error', 'children'),
+          prevent_initial_call = True)
+
+def location_success(password_error):
+
+    error_text = password_error['props']['children'][0]['props']['children']
+    # If the button has most recently been pressed
+    if dash.callback_context.triggered_id == 'password-error':
+        if error_text == "no error":
+            print("returnout new layout")
+            return html.Div([dbc.Col(
+                dbc.Card([
+                    dbc.CardBody([
+                        html.Div([
+                                dbc.Button('<-', href='/login'),
+                            ],style = {'float': 'left'}),
+                        html.Div([
+                            html.Img(
+                                alt="Link to Github",
+                                src="./assets/logo.png",
+                                style={'height':'3%', 'width':'16%', 'margin': 'auto', "opacity": '0.8','display': 'inline'}
+                            ),
+                            html.H3('Optirun', style={'display': 'inline' }),
+                        
+
+                        ],style = {'align-items':'center', 'justify-content':'center', }),
+                        html.Div([html.H3('Successfully Registered!')])
+                    ])
+                ], className='text-center', style={"width": "25rem", 'background-color': 'rgba(245, 245, 245, 1)', 'opacity': '.8'}),
+                width={"offset": 4},
+            )
+            ])
+        else:
+            raise PreventUpdate
+    else:
+        raise PreventUpdate
+
