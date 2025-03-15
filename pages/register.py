@@ -163,7 +163,7 @@ def register_user_to_database(n_clicks, username, email, password1, password2, p
                     return html.Div([html.P(registration_error)]), html.Div([html.H3('Successfully Registered!')]), green_button_style
 
         
-    if registration_error == 'no error':
+    if registration_error == "no error":
         registration_error = ""
     
     return html.Div([html.P(registration_error)]),  html.Div([]), grey_button_style
