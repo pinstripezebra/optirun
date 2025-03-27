@@ -150,5 +150,3 @@ def update_timeseries(df, location, switch):
                                                             best_bucket['cloudcover'].to_list()[0]]),kpi_card_body )
 
     return  best_forecast, gauges, forecast_return
-
-
