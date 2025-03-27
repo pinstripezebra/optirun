@@ -90,16 +90,17 @@ layout = html.Div([
 def update_weather_row(measurement_switch, data):
 
     df = pd.read_json(data, orient='split')
-    graph1 = px.bar(df, x='time', y='temperature_2m', title='Temperature', labels={'temperature':'Temperature (°F)'})
-    graph2 = px.bar(df, x='time', y='humidity', title='Humidity', labels={'humidity':'Humidity (%)'})
-    graph3 = px.bar(df, x='time', y='wind_speed', title='Wind Speed', labels={'wind_speed':'Wind Speed (mph)'})
+    graph1 = px.bar(df, x='time', y='temperature_2m', title='Temperature')
+    graph2 = px.bar(df, x='time', y='precipitation_probability', title='Rain')
+    graph3 = px.bar(df, x='time', y='windspeed_10m', title='Wind Speed')
 
-    return dbc.Row([
-        dbc.Col(html.Div(dcc.Graph(graph1)), width=4),
-        dbc.Col(html.Div(dcc.Graph(graph2)), width=4),
-        dbc.Col(html.Div(dcc.Graph(graph3)), width=4)
+    return html.Div([
+        dbc.Row([
+            dbc.Col(dcc.Graph(figure=graph1), width=4),
+            dbc.Col(dcc.Graph(figure=graph2), width=4),
+            dbc.Col(dcc.Graph(figure=graph3), width=4)
+        ])
     ])
-
 
 # callback for table row
 @callback(
@@ -112,6 +113,7 @@ def update_table_row(measurement_switch, data):
     return dbc.Row([
         dash_table.DataTable(
                 data = df.to_dict('records'),columns =  [{"name": i, "id": i} for i in df.columns],
-                style_table={'width': '100%'}
-            )
+                page_action='none',
+                style_table={'height': '450px', 'overflowY': 'auto'}
+        )
     ])
