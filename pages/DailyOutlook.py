@@ -1,6 +1,6 @@
 import dash
 import os
-from dash import html, dcc, callback, Input, Output
+from dash import html, dcc, callback, Input, Output,dash_table
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -12,6 +12,7 @@ from utility.measurement import find_optimal_window, return_nightimes
 from utility.chatbot import query_condition_description
 import json
 import time
+import plotly.express as px
 
 dash.register_page(__name__, path='/analytic')
 
@@ -80,3 +81,37 @@ layout = html.Div([
     ], style = CONTENT_STYLE)
 ])
 
+# callback for graph row
+@callback(
+    Output('weather-row', 'children'),
+    Input('measurement-switch', 'value'),
+    Input('stored-forecast', 'data')
+)
+def update_weather_row(measurement_switch, data):
+
+    df = pd.read_json(data, orient='split')
+    graph1 = px.bar(df, x='time', y='temperature_2m', title='Temperature', labels={'temperature':'Temperature (°F)'})
+    graph2 = px.bar(df, x='time', y='humidity', title='Humidity', labels={'humidity':'Humidity (%)'})
+    graph3 = px.bar(df, x='time', y='wind_speed', title='Wind Speed', labels={'wind_speed':'Wind Speed (mph)'})
+
+    return dbc.Row([
+        dbc.Col(html.Div(dcc.Graph(graph1)), width=4),
+        dbc.Col(html.Div(dcc.Graph(graph2)), width=4),
+        dbc.Col(html.Div(dcc.Graph(graph3)), width=4)
+    ])
+
+
+# callback for table row
+@callback(
+        Output('table-row', 'children'),
+        Input('measurement-switch', 'value'),
+        Input('stored-forecast', 'data')
+)
+def update_table_row(measurement_switch, data):
+    df = pd.read_json(data, orient='split')
+    return dbc.Row([
+        dash_table.DataTable(
+                data = df.to_dict('records'),columns =  [{"name": i, "id": i} for i in df.columns],
+                style_table={'width': '100%'}
+            )
+    ])
