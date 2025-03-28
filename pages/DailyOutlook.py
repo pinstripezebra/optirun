@@ -89,10 +89,23 @@ layout = html.Div([
 )
 def update_weather_row(measurement_switch, data):
 
-    df = pd.read_json(data, orient='split')
-    graph1 = px.bar(df, x='time', y='temperature_2m', title='Temperature')
-    graph2 = px.bar(df, x='time', y='precipitation_probability', title='Rain')
-    graph3 = px.bar(df, x='time', y='windspeed_10m', title='Wind Speed')
+    print(measurement_switch)
+    df = pd.read_json(data, orient='split').head(24)
+    temp_measure, windspeed_measure = '', ''
+    if 'Metric' in measurement_switch:
+        temp_measure = 'temperature_2m'
+        windspeed_measure = 'windspeed_10m'
+    else:
+        temp_measure = 'temperature_F'
+        windspeed_measure = 'windspeed_MPH'
+
+    # generating graphs
+    graph1 = px.line(df, x='time', y=temp_measure, title='Temperature')
+    graph2 = px.line(df, x='time', y='precipitation_probability', title='Rain')
+    graph3 = px.line(df, x='time', y=windspeed_measure, title='Wind Speed')   
+    graph1.update_traces(mode="markers+lines", hovertemplate=None)
+    graph2.update_traces(mode="markers+lines", hovertemplate=None)
+    graph3.update_traces(mode="markers+lines", hovertemplate=None)
 
     return html.Div([
         dbc.Row([
@@ -109,7 +122,7 @@ def update_weather_row(measurement_switch, data):
         Input('stored-forecast', 'data')
 )
 def update_table_row(measurement_switch, data):
-    df = pd.read_json(data, orient='split')
+    df = pd.read_json(data, orient='split').head(24)
     return dbc.Row([
         dash_table.DataTable(
                 data = df.to_dict('records'),columns =  [{"name": i, "id": i} for i in df.columns],
