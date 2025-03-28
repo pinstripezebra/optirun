@@ -71,7 +71,13 @@ layout = html.Div([
         html.H1('Running Outlook Today'),
         html.Div([ 
             dbc.Row([
-                html.Div([], id='weather-row')
+                html.Div([
+        dbc.Row([
+            dbc.Col(dcc.Graph(id = 'temp-fig'), width=4),
+            dbc.Col(dcc.Graph(id ='precipitation-fig'), width=4),
+            dbc.Col(dcc.Graph(id = 'wind-fig'), width=4)
+        ])
+    ])
             ]),
             dbc.Row([
                 html.Div([], id='table-row')
@@ -83,7 +89,9 @@ layout = html.Div([
 
 # callback for graph row
 @callback(
-    Output('weather-row', 'children'),
+    Output('temp-fig', 'figure'),
+    Output('precipitation-fig', 'figure'),
+    Output('wind-fig', 'figure'),
     Input('measurement-switch', 'value'),
     Input('stored-forecast', 'data')
 )
@@ -106,14 +114,11 @@ def update_weather_row(measurement_switch, data):
     graph1.update_traces(mode="markers+lines", hovertemplate=None)
     graph2.update_traces(mode="markers+lines", hovertemplate=None)
     graph3.update_traces(mode="markers+lines", hovertemplate=None)
+    graph1.update_layout(hovermode="x unified")
+    graph2.update_layout(hovermode="x unified")
+    graph3.update_layout(hovermode="x unified")
 
-    return html.Div([
-        dbc.Row([
-            dbc.Col(dcc.Graph(figure=graph1), width=4),
-            dbc.Col(dcc.Graph(figure=graph2), width=4),
-            dbc.Col(dcc.Graph(figure=graph3), width=4)
-        ])
-    ])
+    return graph1, graph2, graph3
 
 # callback for table row
 @callback(
@@ -123,6 +128,8 @@ def update_weather_row(measurement_switch, data):
 )
 def update_table_row(measurement_switch, data):
     df = pd.read_json(data, orient='split').head(24)
+    cols_of_interest = ['time', 'temperature_2m', 'precipitation_probability', 'windspeed_10m', 'cloudcover', 'Forecast_Score']
+    df = df[cols_of_interest]
     return dbc.Row([
         dash_table.DataTable(
                 data = df.to_dict('records'),columns =  [{"name": i, "id": i} for i in df.columns],
