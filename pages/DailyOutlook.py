@@ -5,8 +5,6 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import dash_bootstrap_components as dbc
-from utility.visualization import generate_run_plot
-from utility.visualization import generate_run_plot, draw_Image, draw_Text, generate_gauge_plot
 from dotenv import find_dotenv, load_dotenv
 from utility.measurement import find_optimal_window, return_nightimes
 from utility.chatbot import query_condition_description
@@ -124,16 +122,33 @@ def update_weather_row(measurement_switch, data):
 @callback(
         Output('table-row', 'children'),
         Input('measurement-switch', 'value'),
-        Input('stored-forecast', 'data')
+        Input('stored-forecast', 'data'),
+        Input('wind-fig', 'hoverData') 
 )
-def update_table_row(measurement_switch, data):
+def update_table_row(measurement_switch, data, hover_data_wind):
     df = pd.read_json(data, orient='split').head(24)
     cols_of_interest = ['time', 'temperature_2m', 'precipitation_probability', 'windspeed_10m', 'cloudcover', 'Forecast_Score']
+    hovered_time = ''
+    if hover_data_wind:
+        hovered_time = hover_data_wind['points'][0]['x'] 
     df = df[cols_of_interest]
     return dbc.Row([
         dash_table.DataTable(
                 data = df.to_dict('records'),columns =  [{"name": i, "id": i} for i in df.columns],
                 page_action='none',
-                style_table={'height': '450px', 'overflowY': 'auto'}
-        )
-    ])
+                style_table={'height': '450px', 'overflowY': 'auto'},
+                style_data_conditional=[{
+                        'if': {'filter_query': '{time} datestartswith {hovered_time}'},
+                        'backgroundColor': '#85144b',
+                        'color': 'white'
+                    }],
+                style_cell={
+                    'width': '100px',
+                    'minWidth': '100px',
+                    'maxWidth': '100px',
+                    'overflow': 'hidden',
+                    'textOverflow': 'ellipsis',
+                },
+                page_size=20
+                    )
+                ])

@@ -7,6 +7,7 @@ from dash import Dash, dcc, html, callback,Input, Output,dash_table
 import dash_bootstrap_components as dbc
 import plotly.express as px
 from plotly.subplots import make_subplots
+import colorlover
 
 
 graph_card_style = {
@@ -317,3 +318,5 @@ def generate_gauge_plot(df, response_val):
         domain = {'x': [0, 1], 'y': [0, 1]},
         title = {'text': response_val}))
     return fig
+
+
