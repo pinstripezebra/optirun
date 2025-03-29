@@ -1,6 +1,6 @@
 import dash
 import os
-from dash import html, dcc, callback, Input, Output,dash_table
+from dash import html, dcc, callback, Input, Output,dash_table, callback_context
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -122,19 +122,32 @@ def update_weather_row(measurement_switch, data):
         Output('table-row', 'children'),
         Input('measurement-switch', 'value'),
         Input('stored-forecast', 'data'),
-        Input('wind-fig', 'hoverData') 
+        Input('wind-fig', 'hoverData'),
+        Input('precipitation-fig', 'hoverData'),
+        Input('temp-fig', 'hoverData')
 )
-def update_table_row(measurement_switch, data, hover_data_wind):
+def update_table_row(measurement_switch, data, hover_data_wind, hover_data_precipitation, hover_data_temp):
     df = pd.read_json(data, orient='split').head(24)
     cols_of_interest = ['time', 'temperature_2m', 'precipitation_probability', 'windspeed_10m', 'cloudcover', 'Forecast_Score']
     hovered_time = ''
-    if hover_data_wind:
-        hovered_time = str(hover_data_wind['points'][0]['x'])
-    df = df[cols_of_interest]
+
+
+    ctx = callback_context
+    # checking the input that triggered the callback
+    if ctx.triggered:
+        triggered_input = ctx.triggered[0]['prop_id'] 
+        # checking the hoverdata from our figures
+        if triggered_input == 'wind-fig.hoverData':
+            hovered_time = str(hover_data_wind['points'][0]['x'])
+        elif triggered_input == 'precipitation-fig.hoverData':
+            hovered_time = str(hover_data_precipitation['points'][0]['x'])
+        elif triggered_input == 'temp-fig.hoverData':
+            hovered_time = str(hover_data_temp['points'][0]['x'])
+        df = df[cols_of_interest]
 
     # Construct the filter_query dynamically
     filter_query = ''
-    if hovered_time:
+    if hovered_time != '':
         filter_query = f'{{time}} datestartswith "{hovered_time}"'  
 
     return dbc.Row([
