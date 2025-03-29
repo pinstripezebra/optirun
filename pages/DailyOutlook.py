@@ -95,7 +95,6 @@ layout = html.Div([
 )
 def update_weather_row(measurement_switch, data):
 
-    print(measurement_switch)
     df = pd.read_json(data, orient='split').head(24)
     temp_measure, windspeed_measure = '', ''
     if 'Metric' in measurement_switch:
@@ -130,25 +129,33 @@ def update_table_row(measurement_switch, data, hover_data_wind):
     cols_of_interest = ['time', 'temperature_2m', 'precipitation_probability', 'windspeed_10m', 'cloudcover', 'Forecast_Score']
     hovered_time = ''
     if hover_data_wind:
-        hovered_time = hover_data_wind['points'][0]['x'] 
+        hovered_time = str(hover_data_wind['points'][0]['x'])
     df = df[cols_of_interest]
+
+    # Construct the filter_query dynamically
+    filter_query = ''
+    if hovered_time:
+        filter_query = f'{{time}} datestartswith "{hovered_time}"'  
+
     return dbc.Row([
         dash_table.DataTable(
                 data = df.to_dict('records'),columns =  [{"name": i, "id": i} for i in df.columns],
                 page_action='none',
                 style_table={'height': '450px', 'overflowY': 'auto'},
-                style_data_conditional=[{
-                        'if': {'filter_query': '{time} datestartswith {hovered_time}'},
-                        'backgroundColor': '#85144b',
-                        'color': 'white'
-                    }],
-                style_cell={
-                    'width': '100px',
-                    'minWidth': '100px',
-                    'maxWidth': '100px',
-                    'overflow': 'hidden',
-                    'textOverflow': 'ellipsis',
-                },
+                style_data_conditional=[
+                {
+                    'if': {'filter_query': filter_query},  
+                    'backgroundColor': '#ADD8E6',
+                    'color': 'white'
+                }
+            ] if filter_query else [],  
+            style_cell={
+                'width': '100px',
+                'minWidth': '100px',
+                'maxWidth': '100px',
+                'overflow': 'hidden',
+                'textOverflow': 'ellipsis',
+            },
                 page_size=20
                     )
                 ])
